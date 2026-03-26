@@ -1,24 +1,29 @@
+# ====== Common ======
 HELP.md
-.gradle
+
+# ====== Gradle ======
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
+
+# Allow build/ inside src
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### STS ###
+# ====== STS ======
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
+# ====== IntelliJ IDEA ======
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -26,12 +31,29 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# ====== NetBeans ======
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
 
-### VS Code ###
+# ====== VS Code ======
 .vscode/
+
+# ====== Logs ======
+*.log
+
+# ====== OS ======
+.DS_Store
+Thumbs.db
+
+# ====== Env / Secrets ======
+.env
+*.env
+application-*.properties
+application-*.yaml
+application-*.yml
+
+# ====== Java / Build ======
+*.class
