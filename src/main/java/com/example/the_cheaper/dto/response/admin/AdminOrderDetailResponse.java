@@ -17,15 +17,19 @@ import java.util.List;
 @AllArgsConstructor
 public class AdminOrderDetailResponse {
     private Long id;
-    private Long accountId;
-    private BigDecimal subTotal;
     private BigDecimal finalTotal;
-    private OrderStatus status;
+    private String status;
+
     private LocalDateTime createdAt;
-    private String receiverName;
-    private String receiverPhone;
-    private String receiverAddress;
-    private List<UserOrderItemResponse> items;
+
+    private String paymentMethodCode;
+    private String paymentStatus;
+
+    private String receiver;
+    private String phone;
+    private String location;
+
+    private List<AdminOrderItemResponse> items;
 }
 
 

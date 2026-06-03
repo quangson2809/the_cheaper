@@ -11,11 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AdminProductFilterRequest {
-    private Long brandId, categoryId,materialId;
+public class AdminUserFilterRequest {
     private Integer status;
+    private String role;
     int page=1,limit=10;
-    String sortBy ="price";
 }
 
 

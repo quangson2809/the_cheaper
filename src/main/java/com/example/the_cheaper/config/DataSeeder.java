@@ -46,9 +46,9 @@ public class DataSeeder implements CommandLineRunner {
 
                 // ===================== PAYMENT METHODS (3 bản ghi) =====================
                 paymentMethodRepository.saveAll(List.of(
-                                PaymentMethodEntity.builder().code("COD").name("Thanh to\u00e1n khi nh\u1eadn h\u00e0ng").active(true).build(),
-                                PaymentMethodEntity.builder().code("MOMO").name("V\u00ed MoMo").active(true).build(),
-                                PaymentMethodEntity.builder().code("VNPAY").name("VNPay").active(true).build()));
+                                PaymentMethodEntity.builder().code("COD").name("Thanh to\u00e1n khi nh\u1eadn h\u00e0ng").status(1).build(),
+                                PaymentMethodEntity.builder().code("MOMO").name("V\u00ed MoMo").status(1).build(),
+                                PaymentMethodEntity.builder().code("VNPAY").name("VNPay").status(1).build()));
                 log.info("Seeded 3 payment methods");
 
                 // ===================== ROLES (2 bản ghi) =====================
@@ -315,64 +315,64 @@ public class DataSeeder implements CommandLineRunner {
 
                 // ===================== PRODUCT VARIANTS (20 bản ghi) =====================
                 ProductVariantEntity v1 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("NIKE-AM270-BLK-40").stock(50).overridePrice(null)
+                                .sku("NIKE-AM270-BLK-40").stock(50).sold(0).overridePrice(null)
                                 .product(p1).optionValues(List.of(size40, colorBlack, styleLow)).build());
                 ProductVariantEntity v2 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("NIKE-AM270-WHT-41").stock(35).overridePrice(null)
+                                .sku("NIKE-AM270-WHT-41").stock(35).sold(0).overridePrice(null)
                                 .product(p1).optionValues(List.of(size41, colorWhite, styleLow)).build());
                 ProductVariantEntity v3 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("ADID-UB22-GRY-40").stock(40).overridePrice(new BigDecimal("3600000"))
+                                .sku("ADID-UB22-GRY-40").stock(40).sold(0).overridePrice(new BigDecimal("3600000"))
                                 .product(p2).optionValues(List.of(size40, colorGray)).build());
                 ProductVariantEntity v4 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("ADID-UB22-BLK-42").stock(25).overridePrice(null)
+                                .sku("ADID-UB22-BLK-42").stock(25).sold(0).overridePrice(null)
                                 .product(p2).optionValues(List.of(size42, colorBlack)).build());
                 ProductVariantEntity v5 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("PUMA-RSX-RED-39").stock(30).overridePrice(new BigDecimal("2100000"))
+                                .sku("PUMA-RSX-RED-39").stock(30).sold(0).overridePrice(new BigDecimal("2100000"))
                                 .product(p3).optionValues(List.of(size39, colorRed)).build());
                 ProductVariantEntity v6 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("NIKE-PHG-BLK-41").stock(20).overridePrice(null)
+                                .sku("NIKE-PHG-BLK-41").stock(20).sold(0).overridePrice(null)
                                 .product(p4).optionValues(List.of(size41, colorBlack)).build());
                 ProductVariantEntity v7 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("NIKE-PHG-WHT-42").stock(15).overridePrice(null)
+                                .sku("NIKE-PHG-WHT-42").stock(15).sold(0).overridePrice(null)
                                 .product(p4).optionValues(List.of(size42, colorWhite)).build());
                 ProductVariantEntity v8 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("ADID-D8-BLU-40").stock(45).overridePrice(null)
+                                .sku("ADID-D8-BLU-40").stock(45).sold(0).overridePrice(null)
                                 .product(p5).optionValues(List.of(size40, colorBlue)).build());
                 ProductVariantEntity v9 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("CONV-CT-BLK-38").stock(60).overridePrice(null)
+                                .sku("CONV-CT-BLK-38").stock(60).sold(0).overridePrice(null)
                                 .product(p6).optionValues(List.of(size38, colorBlack, styleHigh, matCanvas)).build());
                 ProductVariantEntity v10 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("CONV-CT-WHT-39").stock(55).overridePrice(null)
+                                .sku("CONV-CT-WHT-39").stock(55).sold(0).overridePrice(null)
                                 .product(p6).optionValues(List.of(size39, colorWhite, styleHigh, matCanvas)).build());
                 ProductVariantEntity v11 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("VANS-OS-BLK-40").stock(70).overridePrice(null)
+                                .sku("VANS-OS-BLK-40").stock(70).sold(0).overridePrice(null)
                                 .product(p7).optionValues(List.of(size40, colorBlack, styleLow)).build());
                 ProductVariantEntity v12 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("VANS-OS-WHT-41").stock(65).overridePrice(null)
+                                .sku("VANS-OS-WHT-41").stock(65).sold(0).overridePrice(null)
                                 .product(p7).optionValues(List.of(size41, colorWhite, styleLow)).build());
                 ProductVariantEntity v13 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("NB-574-GRY-39").stock(40).overridePrice(new BigDecimal("1750000"))
+                                .sku("NB-574-GRY-39").stock(40).sold(0).overridePrice(new BigDecimal("1750000"))
                                 .product(p8).optionValues(List.of(size39, colorGray)).build());
                 ProductVariantEntity v14 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("NB-574-BLU-42").stock(30).overridePrice(null)
+                                .sku("NB-574-BLU-42").stock(30).sold(0).overridePrice(null)
                                 .product(p8).optionValues(List.of(size42, colorBlue)).build());
                 ProductVariantEntity v15 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("UA-HS5-BLK-40").stock(35).overridePrice(null)
+                                .sku("UA-HS5-BLK-40").stock(35).sold(0).overridePrice(null)
                                 .product(p9).optionValues(List.of(size40, colorBlack, matMesh)).build());
                 ProductVariantEntity v16 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("UA-HS5-BLU-41").stock(28).overridePrice(new BigDecimal("2400000"))
+                                .sku("UA-HS5-BLU-41").stock(28).sold(0).overridePrice(new BigDecimal("2400000"))
                                 .product(p9).optionValues(List.of(size41, colorBlue, matMesh)).build());
                 ProductVariantEntity v17 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("REEB-CL-WHT-38").stock(45).overridePrice(null)
+                                .sku("REEB-CL-WHT-38").stock(45).sold(0).overridePrice(null)
                                 .product(p10).optionValues(List.of(size38, colorWhite, matLeather)).build());
                 ProductVariantEntity v18 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("REEB-CL-BLK-40").stock(38).overridePrice(null)
+                                .sku("REEB-CL-BLK-40").stock(38).sold(0).overridePrice(null)
                                 .product(p10).optionValues(List.of(size40, colorBlack, matLeather)).build());
                 ProductVariantEntity v19 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("PUMA-RSX-BLK-41").stock(22).overridePrice(null)
+                                .sku("PUMA-RSX-BLK-41").stock(22).sold(0).overridePrice(null)
                                 .product(p3).optionValues(List.of(size41, colorBlack)).build());
                 ProductVariantEntity v20 = productVariantRepository.save(ProductVariantEntity.builder()
-                                .sku("ADID-D8-RED-42").stock(18).overridePrice(new BigDecimal("3000000"))
+                                .sku("ADID-D8-RED-42").stock(18).sold(0).overridePrice(new BigDecimal("3000000"))
                                 .product(p5).optionValues(List.of(size42, colorRed)).build());
                 log.info("Seeded 20 product variants");
 
@@ -448,51 +448,61 @@ public class DataSeeder implements CommandLineRunner {
                                                 .finalAmount(new BigDecimal("2990000"))
                                                 .receiver("Nguyễn Văn An").phone("0901234567")
                                                 .location("123 Nguyễn Huệ, Quận 1, TP.HCM")
-                                        .paymentMethodCode("MOMO").build(),
+                                                .paymentStatus(1)
+                                                .paymentMethodCode("MOMO").build(),
 
                                 OrderEntity.builder().account(accounts.get(1)).status(OrderStatus.SHIPPING)
                                                 .finalAmount(new BigDecimal("3800000"))
                                                 .receiver("Trần Thị Bình").phone("0912345678").paymentMethodCode("MOMO")
-                                                .location("45 Trần Hưng Đạo, Quận 5, TP.HCM").build(),
+                                                .paymentStatus(1)
+                                                .location("45 Trần Hưng Đ0, Quận 5, TP.HCM").build(),
 
                                 OrderEntity.builder().account(accounts.get(2)).status(OrderStatus.PROCESSING)
                                                 .finalAmount(new BigDecimal("1200000")).paymentMethodCode("MOMO")
                                                 .receiver("Lê Văn Cường").phone("0923456789")
+                                                .paymentStatus(0)
                                                 .location("88 Lê Lợi, Quận 3, TP.HCM").build(),
 
-                                OrderEntity.builder().account(accounts.get(3)).status(OrderStatus.PAID)
+                                OrderEntity.builder().account(accounts.get(3)).status(OrderStatus.PROCESSING)
                                                 .finalAmount(new BigDecimal("5800000")).paymentMethodCode("MOMO")
                                                 .receiver("Phạm Thị Dung").phone("0934567890")
+                                                .paymentStatus(1)
                                                 .location("12 Hoàng Diệu, Quận 4, TP.HCM").build(),
 
                                 OrderEntity.builder().account(accounts.get(4)).status(OrderStatus.PENDING)
                                                 .finalAmount(new BigDecimal("2300000")).paymentMethodCode("MOMO")
                                                 .receiver("Hoàng Văn Em").phone("0945678901")
+                                                .paymentStatus(0)
                                                 .location("67 Cách Mạng Tháng 8, Quận 10").build(),
 
                                 OrderEntity.builder().account(accounts.get(5)).status(OrderStatus.DELIVERED)
                                                 .finalAmount(new BigDecimal("1500000")).paymentMethodCode("MOMO")
                                                 .receiver("Vũ Thị Phương").phone("0956789012")
+                                                .paymentStatus(1)
                                                 .location("30 Phan Đình Phùng, Phú Nhuận").build(),
 
                                 OrderEntity.builder().account(accounts.get(6)).status(OrderStatus.CANCELED)
                                                 .finalAmount(new BigDecimal("3200000")).paymentMethodCode("MOMO")
                                                 .receiver("Đặng Văn Giang").phone("0967890123")
+                                                .paymentStatus(0)
                                                 .location("99 Đinh Tiên Hoàng, Bình Thạnh").build(),
 
                                 OrderEntity.builder().account(accounts.get(7)).status(OrderStatus.REFUNDED)
                                                 .finalAmount(new BigDecimal("1900000")).paymentMethodCode("MOMO")
                                                 .receiver("Bùi Thị Hoa").phone("0978901234")
+                                                .paymentStatus(0)
                                                 .location("15 Lý Thường Kiệt, Tân Bình").build(),
 
                                 OrderEntity.builder().account(accounts.get(0)).status(OrderStatus.DELIVERED)
                                                 .finalAmount(new BigDecimal("6600000")).paymentMethodCode("MOMO")
                                                 .receiver("Nguyễn Văn An").phone("0901234567")
+                                                .paymentStatus(1)
                                                 .location("123 Nguyễn Huệ, Quận 1, TP.HCM").build(),
 
                                 OrderEntity.builder().account(accounts.get(8)).status(OrderStatus.PROCESSING)
                                                 .finalAmount(new BigDecimal("2600000")).paymentMethodCode("MOMO")
                                                 .receiver("Ngô Văn Inh").phone("0989012345")
+                                                .paymentStatus(1)
                                                 .location("22 Trường Chinh, Quận 12").build()));
                 log.info("Seeded {} orders", orders.size());
 
