@@ -1,0 +1,28 @@
+package com.example.the_cheaper.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "payment_methods")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PaymentMethodEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false, length = 50)
+    private String code;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private int status = 1;
+}
