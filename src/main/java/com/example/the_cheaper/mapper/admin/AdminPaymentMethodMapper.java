@@ -11,10 +11,6 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AdminPaymentMethodMapper {
-    @Mapping(target = "status", expression = "java(getStatus(entity))")
     PaymentMethodResponse toResponse(PaymentMethodEntity entity);
 
-    default String getStatus(PaymentMethodEntity entity) {
-        return entity.getStatus() == 1 ? "active" : "inactive";
-    }
 }

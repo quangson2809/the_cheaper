@@ -39,6 +39,12 @@ public class AdminCategoryService {
             throw new ResourceAlreadyExistsException("Danh mục '" + request.getName() + "' đã tồn tại");
         }
         CategoryEntity entity = adminCategoryMapper.toEntity(request);
+        if(request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
+        else {
+            entity.setStatus(1);
+        }
         return adminCategoryMapper.toResponse(categoryRepository.save(entity));
     }
 
@@ -59,8 +65,11 @@ public class AdminCategoryService {
         if (categoryRepository.existsByName(request.getName()) && !entity.getName().equals(request.getName())) {
             throw new ResourceAlreadyExistsException("Danh mục '" + request.getName() + "' đã tồn tại");
         }
+        entity.setName(request.getName());
+        if(request.getStatus()!=null){
+            entity.setStatus(request.getStatus());
+        }
 
-        adminCategoryMapper.updateEntityFromRequest(request, entity);
         return adminCategoryMapper.toResponse(categoryRepository.save(entity));
     }
 

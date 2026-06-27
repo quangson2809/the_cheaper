@@ -11,7 +11,6 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AdminMaterialMapper {
-    @Mapping(target = "status", expression = "java(getStatus(entity))")
     AdminMaterialResponse toResponse(MaterialEntity entity);
 
     @Mapping(target = "id", ignore = true)
@@ -21,14 +20,6 @@ public interface AdminMaterialMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "products", ignore = true)
     void updateEntityFromRequest(AdminMaterialRequest request, @MappingTarget MaterialEntity entity);
-
-    default String getStatus(MaterialEntity entity) {
-        if (entity.getStatus() == 0) {
-            return "Deleted";
-        } else{
-            return "Active";
-        }
-    }
 }
 
 

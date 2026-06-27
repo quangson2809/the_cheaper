@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class AdminMaterialResponse {
     private Long id;
     private String name;
-    private String status;
+    private int status;
 }
 

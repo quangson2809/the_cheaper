@@ -11,7 +11,6 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AdminCategoryMapper {
-    @Mapping(target = "status", expression = "java(getStatus(entity))")
     AdminCategoryResponse toResponse(CategoryEntity entity);
 
     @Mapping(target = "id", ignore = true)
@@ -21,14 +20,5 @@ public interface AdminCategoryMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "products", ignore = true)
     void updateEntityFromRequest(AdminCategoryRequest request, @MappingTarget CategoryEntity entity);
-
-    default String getStatus(CategoryEntity entity) {
-        if (entity.getStatus() == 0) {
-            return "Deleted";
-        } else{
-            return "Active";
-        }
-    }
 }
-
 

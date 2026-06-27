@@ -10,5 +10,6 @@ import lombok.*;
 public class AdminBrandRequest {
     @NotBlank(message = "Brand name is required")
     private String name;
+    private Integer status;
 }
 

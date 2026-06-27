@@ -39,6 +39,13 @@ public class AdminMaterialService {
             throw new ResourceAlreadyExistsException("Chất liệu '" + request.getName() + "' đã tồn tại");
         }
         MaterialEntity entity = adminMaterialMapper.toEntity(request);
+        if(request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
+        else {
+            entity.setStatus(1);
+        }
+
         return adminMaterialMapper.toResponse(materialRepository.save(entity));
     }
 
@@ -62,8 +69,11 @@ public class AdminMaterialService {
                         throw new ResourceAlreadyExistsException("Chất liệu '" + request.getName() + "' đã tồn tại");
                     }
                 });
+        entity.setName(request.getName());
 
-        adminMaterialMapper.updateEntityFromRequest(request, entity);
+        if (request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
         return adminMaterialMapper.toResponse(materialRepository.save(entity));
     }
 

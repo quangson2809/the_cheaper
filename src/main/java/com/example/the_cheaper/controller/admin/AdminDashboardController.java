@@ -56,7 +56,7 @@ public class AdminDashboardController {
         }
     }
 
-    @GetMapping("/revenue")
+    @GetMapping("/monthly-revenue")
     public ResponseEntity<ApiResponse<List<MonthlyRevenueResponse>>> getMonthlyRevenue(
             @RequestParam(required = false) Integer year,
             @CurrentUser AccountEntity currentUser) {
@@ -67,7 +67,7 @@ public class AdminDashboardController {
         return ResponseEntity.ok(ApiResponse.success(data, "Lấy thống kê doanh thu thành công"));
     }
 
-    @GetMapping("/quantity")
+    @GetMapping("/monthly-quantity")
     public ResponseEntity<ApiResponse<List<MonthlyQuantityResponse>>> getMonthlySoldQuantity(
             @RequestParam(required = false) Integer year,
             @CurrentUser AccountEntity currentUser) {

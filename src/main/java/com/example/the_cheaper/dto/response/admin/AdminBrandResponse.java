@@ -9,6 +9,6 @@ import lombok.*;
 public class AdminBrandResponse {
     private Long id;
     private String name;
-    private String status;
+    private int status;
 }
 

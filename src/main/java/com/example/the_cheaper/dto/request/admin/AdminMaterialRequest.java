@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class AdminMaterialRequest {
     @NotBlank(message = "Material name is required")
     private String name;
+    private Integer status;
 }
 

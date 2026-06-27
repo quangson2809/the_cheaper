@@ -3,6 +3,7 @@ package com.example.the_cheaper.service.admin;
 import com.example.the_cheaper.dto.request.admin.AdminBrandRequest;
 import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.entity.BrandEntity;
+import com.example.the_cheaper.entity.CategoryEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminBrandMapper;
@@ -39,6 +40,12 @@ public class AdminBrandService {
             throw new ResourceAlreadyExistsException("Thương hiệu '" + request.getName() + "' đã tồn tại");
         }
         BrandEntity entity = adminBrandMapper.toEntity(request);
+        if(request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
+        else {
+            entity.setStatus(1);
+        }
         return adminBrandMapper.toResponse(brandRepository.save(entity));
     }
 
@@ -59,8 +66,11 @@ public class AdminBrandService {
         if (brandRepository.existsByName(request.getName()) && !entity.getName().equals(request.getName())) {
             throw new ResourceAlreadyExistsException("Thương hiệu '" + request.getName() + "' đã tồn tại");
         }
+        entity.setName(request.getName());
+        if (request.getStatus() != null) {
+            entity.setStatus(request.getStatus());
+        }
 
-        adminBrandMapper.updateEntityFromRequest(request, entity);
         return adminBrandMapper.toResponse(brandRepository.save(entity));
     }
 

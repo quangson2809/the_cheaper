@@ -24,5 +24,5 @@ public class BrandEntity {
     @Builder.Default
     private List<ProductEntity> products = new ArrayList<>();
 
-    private int status =1;
+    private int status = 1;
 }
