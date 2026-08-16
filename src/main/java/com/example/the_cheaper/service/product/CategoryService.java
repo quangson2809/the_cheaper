@@ -27,7 +27,7 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public List<UserCategoryResponse> listCategories() {
-        return categoryRepository.findAll().stream()
+        return categoryRepository.findByStatus().stream()
                 .map(userCategoryMapper::toResponse)
                 .collect(Collectors.toList());
     }

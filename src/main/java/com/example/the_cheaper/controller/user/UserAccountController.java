@@ -7,7 +7,7 @@ import com.example.the_cheaper.dto.response.user.UserAccountResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 import com.example.the_cheaper.service.auth.PasswordService;
 import com.example.the_cheaper.service.user.UserAccountService;
 import jakarta.validation.Valid;

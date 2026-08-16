@@ -27,7 +27,7 @@ public class BrandService {
 
     @Transactional(readOnly = true)
     public List<UserBrandResponse> listBrands( ) {
-        return brandRepository.findAll().stream()
+        return brandRepository.findByStatus().stream()
                 .map(userBrandMapper::toResponse)
                 .collect(Collectors.toList());
     }

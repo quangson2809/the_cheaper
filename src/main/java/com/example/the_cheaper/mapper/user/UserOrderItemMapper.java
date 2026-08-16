@@ -17,6 +17,7 @@ public interface UserOrderItemMapper {
     @Mapping(target = "productName", source = "variant.product.name")
     @Mapping(target = "optionValue", source = "variant.optionValues", qualifiedByName = "optionValuesToText")
     @Mapping(target = "unitPrice", expression = "java(entity.calculateUnitPrice())")
+    @Mapping(target = "thumbnailUrl", expression = "java(entity.getVariant().getProduct().getThumbnail())")
     UserOrderItemResponse toResponse(OrderItemEntity entity);
 
     @Named("optionValuesToText")

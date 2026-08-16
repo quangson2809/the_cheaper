@@ -9,10 +9,6 @@ import org.mapstruct.Mapping;
 public interface AdminAccountMapper {
 
     @Mapping(target = "role", source = "role.name")
-    @Mapping(target = "status", expression = "java(getStatus(entity))")
     AdminAccountResponse toResponse(AccountEntity entity);
 
-    default String getStatus(AccountEntity entity) {
-        return entity.getStatus() == 1 ? "active" : "inactive";
-    }
 }

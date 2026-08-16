@@ -3,16 +3,18 @@ package com.example.the_cheaper.controller.admin;
 import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.ApiResponse;
 import com.example.the_cheaper.dto.request.admin.AdminCategoryRequest;
+import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.dto.response.admin.AdminCategoryResponse;
 import com.example.the_cheaper.service.admin.AdminCategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 import java.util.List;
 
 @RestController
@@ -27,6 +29,23 @@ public class AdminCategoryController {
             @CurrentUser AccountEntity currentUser) {
         List<AdminCategoryResponse> response = adminCategoryService.listCategories(currentUser);
         return ResponseEntity.ok(ApiResponse.success(response, "Lấy danh sách danh mục thành công"));
+    }
+
+    @GetMapping("/categories/search")
+    public ResponseEntity<ApiResponse<Page<AdminCategoryResponse>>> searchProducts(
+            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int limit,
+            @CurrentUser AccountEntity currentUser
+    ) {
+        try {
+            Page<AdminCategoryResponse> response = adminCategoryService.searchCategories(name, currentUser, page, limit);
+            return ResponseEntity.ok(ApiResponse.success(response, "Tìm thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi server: " + e.getMessage(),
+                            "/api/accounts/search"));
+        }
     }
 
     @PostMapping("/categories")
@@ -71,6 +90,7 @@ public class AdminCategoryController {
         adminCategoryService.deleteCategory(id, currentUser);
         return ResponseEntity.ok(ApiResponse.success(null, "Xóa danh mục thành công"));
     }
+
 }
 
 

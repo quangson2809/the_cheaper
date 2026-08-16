@@ -58,24 +58,7 @@ public class OrderEntity {
         return items.size();
     }
 
-    public String getPaymentStatus() {
-        return paymentStatus ==1 ? "Đã thanh toán" : "Chưa thanh toán";
-    }
-
-    public String getStatusLabel(){
-        switch (status) {
-            case PENDING:
-                return "Đang chờ xử lý";
-            case PROCESSING:
-                return "Đang xử lý";
-            case SHIPPING:
-                return "Đang giao hàng";
-            case DELIVERED:
-                return "Đã giao hàng";
-            case CANCELED:
-                return "Đã hủy";
-            default:
-                return "Không xác định";
-        }
+    public boolean isPaid() {
+        return paymentStatus == 1;
     }
 }

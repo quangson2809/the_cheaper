@@ -23,7 +23,7 @@ public class AdminOrderDetailResponse {
     private LocalDateTime createdAt;
 
     private String paymentMethodCode;
-    private String paymentStatus;
+    private int paymentStatus;
 
     private String receiver;
     private String phone;

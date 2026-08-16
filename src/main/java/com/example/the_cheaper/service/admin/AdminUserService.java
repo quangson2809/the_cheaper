@@ -2,6 +2,7 @@ package com.example.the_cheaper.service.admin;
 
 import com.example.the_cheaper.dto.request.admin.AdminUserFilterRequest;
 import com.example.the_cheaper.dto.response.admin.AdminAccountResponse;
+import com.example.the_cheaper.dto.response.admin.AdminProductOverviewResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.exception.NotImplementedException;
 
@@ -15,6 +16,7 @@ import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminAccountMapper;
 import com.example.the_cheaper.repository.AccountRepository;
 import com.example.the_cheaper.repository.RoleRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AdminUserService {
     private final AdminProtectedAccess adminProtectedAccess;
     private final AccountRepository accountRepository;
@@ -29,29 +32,23 @@ public class AdminUserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminUserService(
-            AdminProtectedAccess adminProtectedAccess,
-            AccountRepository accountRepository,
-            AdminAccountMapper adminAccountMapper,
-            RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder) {
-        this.adminProtectedAccess = adminProtectedAccess;
-        this.accountRepository = accountRepository;
-        this.adminAccountMapper = adminAccountMapper;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     @Transactional(readOnly = true)
-    public List<AdminAccountResponse> listAccounts(AccountEntity currentUser, AdminUserFilterRequest request) {
+    public Page<AdminAccountResponse> listAccounts(AccountEntity currentUser, AdminUserFilterRequest request) {
         adminProtectedAccess.adminAccess(currentUser);
         Page<AccountEntity> accountEntities = accountRepository.findAllBy(
                 request.getStatus(),
                 request.getRole(),
                 PageRequest.of(request.getPage()  - 1, request.getLimit()));
-        return accountEntities.stream()
-                .map(adminAccountMapper::toResponse)
-                .collect(java.util.stream.Collectors.toList());
+        return accountEntities.map(adminAccountMapper::toResponse);
+    }
+
+    @Transactional
+    public Page<AdminAccountResponse> searchAccountByPhone(String phone, AccountEntity currentUser, int page, int limit) {
+        adminProtectedAccess.adminAccess(currentUser);
+        Page<AccountEntity> accountEntities = accountRepository.findActiveAccountByPhoneContainingIgnoreCase(phone,
+                PageRequest.of(page  - 1, limit));
+
+        return accountEntities.map(adminAccountMapper::toResponse);
     }
 
     @Transactional
@@ -88,7 +85,8 @@ public class AdminUserService {
     }
 
     @Transactional
-    public AdminAccountResponse updateAccountStatus(Long accountId, Integer status) {
+    public AdminAccountResponse updateAccountStatus(AccountEntity currentUser,Long accountId, int status) {
+        adminProtectedAccess.adminAccess(currentUser);
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
         account.setStatus(status);

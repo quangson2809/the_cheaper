@@ -19,7 +19,7 @@ public class AdminProductResponse {
     private AdminMaterialResponse material;
     private BigDecimal salePrice;
     private BigDecimal comparePrice;
-    private String status;
+    private int status;
     private List<AdminProductImageResponse> images;
     private List<AdminVariantResponse> variants;
     private LocalDateTime createdAt;

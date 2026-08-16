@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 
 import java.util.List;
 

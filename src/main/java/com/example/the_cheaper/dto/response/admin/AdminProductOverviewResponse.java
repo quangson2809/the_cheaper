@@ -19,7 +19,7 @@ public class AdminProductOverviewResponse {
     private String categoryName;
     private BigDecimal salePrice;
     private BigDecimal comparePrice;
-    private String status;
+    private int status;
     private String thumbnailUrl;
     private LocalDateTime createdAt;
     private int totalStock;

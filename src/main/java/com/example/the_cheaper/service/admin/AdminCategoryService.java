@@ -1,13 +1,17 @@
 package com.example.the_cheaper.service.admin;
 
 import com.example.the_cheaper.dto.request.admin.AdminCategoryRequest;
+import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.dto.response.admin.AdminCategoryResponse;
+import com.example.the_cheaper.entity.BrandEntity;
 import com.example.the_cheaper.entity.CategoryEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminCategoryMapper;
 import com.example.the_cheaper.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,17 @@ public class AdminCategoryService {
         return categoryRepository.findAll().stream()
                 .map(adminCategoryMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Page<AdminCategoryResponse> searchCategories(String name, AccountEntity currentUser, int page, int limit) {
+        adminProtectedAccess.adminAccess(currentUser);
+        Page<CategoryEntity> categoryEntities = categoryRepository.findCategoryByNameContainingIgnoreCase(
+                name,
+                PageRequest.of(page  - 1, limit)
+        );
+
+        return categoryEntities.map(adminCategoryMapper::toResponse);
     }
 
     @Transactional

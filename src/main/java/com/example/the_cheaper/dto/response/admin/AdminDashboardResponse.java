@@ -11,9 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class AdminDashboardResponse {
     private BigDecimal totalRevenue;
-    private long totalOrders;
-    private long totalUsers;
-    private List<AdminProductSales> topProducts;
+    private int totalOrders;
+    private int totalUsers;
 }
 
 

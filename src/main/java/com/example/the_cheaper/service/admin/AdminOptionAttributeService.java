@@ -3,9 +3,11 @@ package com.example.the_cheaper.service.admin;
 import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.request.admin.AdminOptionAttributeRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOptionValueRequest;
+import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOptionAttributeResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOptionValueResponse;
 import com.example.the_cheaper.entity.AccountEntity;
+import com.example.the_cheaper.entity.BrandEntity;
 import com.example.the_cheaper.entity.OptionAttributeEntity;
 import com.example.the_cheaper.entity.OptionValueEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
@@ -14,6 +16,8 @@ import com.example.the_cheaper.mapper.admin.AdminOptionAttributeMapper;
 import com.example.the_cheaper.repository.OptionAttributeRepository;
 import com.example.the_cheaper.repository.OptionValueRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +33,7 @@ public class AdminOptionAttributeService {
     private final AdminOptionAttributeMapper adminOptionAttributeMapper;
     private final AdminProtectedAccess adminProtectedAccess;
 
-    /**
-     * Lấy danh sách tất cả thuộc tính (kèm danh sách value của mỗi thuộc tính).
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional(readOnly = true)
     public List<AdminOptionAttributeResponse> listOptionAttributes(AccountEntity currentUser) {
         adminProtectedAccess.adminAccess(currentUser);
@@ -41,10 +42,15 @@ public class AdminOptionAttributeService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lấy danh sách các value của một thuộc tính cụ thể.
-     * Chỉ ADMIN được truy cập.
-     */
+    @Transactional
+    public Page<AdminOptionAttributeResponse> searchOptionAttribute(String name, AccountEntity currentUser, int page, int limit) {
+        adminProtectedAccess.adminAccess(currentUser);
+        Page<OptionAttributeEntity> optionAttributeEntities = optionAttributeRepository.findOptionAttributeByNameContainingIgnoreCase(name,
+                PageRequest.of(page  - 1, limit));
+
+        return optionAttributeEntities.map(adminOptionAttributeMapper::toResponse);
+    }
+
     @Transactional(readOnly = true)
     public List<AdminOptionValueResponse> listValuesByAttribute(Long attributeId, AccountEntity currentUser) {
         adminProtectedAccess.adminAccess(currentUser);
@@ -55,10 +61,7 @@ public class AdminOptionAttributeService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Lấy chi tiết một thuộc tính (kèm danh sách values).
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional(readOnly = true)
     public AdminOptionAttributeResponse getOptionAttributeDetail(Long id, AccountEntity currentUser) {
         adminProtectedAccess.adminAccess(currentUser);
@@ -67,10 +70,7 @@ public class AdminOptionAttributeService {
         return adminOptionAttributeMapper.toResponse(entity);
     }
 
-    /**
-     * Tạo mới thuộc tính (có thể kèm danh sách values ban đầu).
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional
     public AdminOptionAttributeResponse createOptionAttribute(AdminOptionAttributeRequest request,
                                                               AccountEntity currentUser) {
@@ -102,10 +102,7 @@ public class AdminOptionAttributeService {
     }
 
 
-    /**
-     * Cập nhật thuộc tính và toàn bộ values (replace strategy).
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional
     public AdminOptionAttributeResponse updateOptionAttribute(Long id,
                                                               AdminOptionAttributeRequest request,
@@ -143,10 +140,7 @@ public class AdminOptionAttributeService {
         }
     }
 
-    /**
-     * Thêm một value mới vào thuộc tính đã có.
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional
     public AdminOptionValueResponse addValueToAttribute(Long attributeId,
                                                         AdminOptionValueRequest request,
@@ -166,10 +160,7 @@ public class AdminOptionAttributeService {
         return adminOptionAttributeMapper.toValueResponse(optionValueRepository.save(newValue));
     }
 
-    /**
-     * Xóa một value khỏi thuộc tính.
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional
     public void deleteValue(Long attributeId, Long valueId, AccountEntity currentUser) {
         adminProtectedAccess.adminAccess(currentUser);
@@ -187,10 +178,7 @@ public class AdminOptionAttributeService {
         optionValueRepository.delete(value);
     }
 
-    /**
-     * Xóa toàn bộ thuộc tính (và các values liên kết nhờ CascadeType.ALL).
-     * Chỉ ADMIN được truy cập.
-     */
+
     @Transactional
     public void deleteOptionAttribute(Long id, AccountEntity currentUser) {
         adminProtectedAccess.adminAccess(currentUser);

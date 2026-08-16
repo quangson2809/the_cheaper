@@ -2,13 +2,17 @@ package com.example.the_cheaper.service.admin;
 
 import com.example.the_cheaper.dto.request.admin.AdminCreatePaymentMethodRequest;
 import com.example.the_cheaper.dto.request.admin.AdminUpdatePaymentMethodRequest;
+import com.example.the_cheaper.dto.response.admin.AdminMaterialResponse;
 import com.example.the_cheaper.dto.response.common.PaymentMethodResponse;
+import com.example.the_cheaper.entity.MaterialEntity;
 import com.example.the_cheaper.entity.PaymentMethodEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminPaymentMethodMapper;
 import com.example.the_cheaper.repository.PaymentMethodRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.the_cheaper.entity.AccountEntity;
@@ -23,7 +27,6 @@ public class AdminPaymentMethodService {
     private final AdminPaymentMethodMapper adminPaymentMethodMapper;
     private final AdminProtectedAccess adminProtectedAccess;
 
-    // ─── Lấy tất cả (admin) ──────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<PaymentMethodResponse> getAllPaymentMethods(AccountEntity currentUser) {
@@ -34,7 +37,6 @@ public class AdminPaymentMethodService {
                 .toList();
     }
 
-    // ─── Lấy chi tiết ────────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public PaymentMethodResponse getPaymentMethod(Long id, AccountEntity currentUser) {
@@ -45,7 +47,6 @@ public class AdminPaymentMethodService {
         return adminPaymentMethodMapper.toResponse(entity);
     }
 
-    // ─── Tạo mới ─────────────────────────────────────────────────────────────────
 
     @Transactional
     public PaymentMethodResponse createPaymentMethod(AdminCreatePaymentMethodRequest request, AccountEntity currentUser) {
@@ -64,7 +65,6 @@ public class AdminPaymentMethodService {
         return adminPaymentMethodMapper.toResponse(paymentMethodRepository.save(entity));
     }
 
-    // ─── Cập nhật ────────────────────────────────────────────────────────────────
 
     @Transactional
     public PaymentMethodResponse updatePaymentMethod(Long id, AdminUpdatePaymentMethodRequest request, AccountEntity currentUser) {

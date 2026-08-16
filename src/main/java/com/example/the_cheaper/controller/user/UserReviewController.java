@@ -6,7 +6,7 @@ import com.example.the_cheaper.dto.response.user.UserReviewResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 import com.example.the_cheaper.service.product.ReviewService;
 import java.util.List;
 

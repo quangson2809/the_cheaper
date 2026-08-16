@@ -1,9 +1,12 @@
 package com.example.the_cheaper.service.admin;
 
+import com.example.the_cheaper.dto.request.admin.AdminDashboardStatsRequest;
 import com.example.the_cheaper.dto.request.common.SearchRequest;
 import com.example.the_cheaper.dto.response.admin.AdminDashboardResponse;
 import com.example.the_cheaper.exception.NotImplementedException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import com.example.the_cheaper.dto.response.admin.MonthlyQuantityResponse;
 import com.example.the_cheaper.dto.response.admin.MonthlyRevenueResponse;
 import com.example.the_cheaper.dto.response.admin.OrderStatusRatioResponse;
 import com.example.the_cheaper.entity.OrderStatus;
+import com.example.the_cheaper.repository.AccountRepository;
 import com.example.the_cheaper.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +28,24 @@ import lombok.RequiredArgsConstructor;
 public class AdminDashboardService {
 
     private final AdminProtectedAccess adminProtectedAccess;
+    private final AccountRepository accountRepository;
     private final OrderRepository orderRepository;
 
     @Transactional(readOnly = true)
-    public AdminDashboardResponse getDashboardStats(AccountEntity currentUser) {
+    public AdminDashboardResponse getDashboardStats(AccountEntity currentUser, int year) {
         adminProtectedAccess.adminAccess(currentUser);
-        throw new NotImplementedException("Chức năng dashboard chưa được triển khai");
+        LocalDateTime from = LocalDate.of(year, 1, 1).atStartOfDay();
+        LocalDateTime to = LocalDate.of(year +1, 1, 1).atStartOfDay();
+
+        int countUsers = accountRepository.countByCreatedBetween(from, to);
+        int countOrders = orderRepository.countByPayAtBetween(from, to);
+        BigDecimal revenue = orderRepository.revenueByPayAtBetween(from, to);
+
+        return AdminDashboardResponse.builder()
+                .totalRevenue(revenue != null ? revenue : BigDecimal.ZERO)
+                .totalOrders(countOrders)
+                .totalUsers(countUsers)
+                .build();
     }
 
     @Transactional(readOnly = true)

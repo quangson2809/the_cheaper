@@ -4,6 +4,7 @@ import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.ApiResponse;
 import com.example.the_cheaper.dto.request.admin.AdminOptionAttributeRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOptionValueRequest;
+import com.example.the_cheaper.dto.response.admin.AdminMaterialResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOptionAttributeResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOptionValueResponse;
 import com.example.the_cheaper.exception.NotImplementedException;
@@ -12,22 +13,16 @@ import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.service.admin.AdminOptionAttributeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 
 import java.util.List;
 
-/**
- * Admin API: quản lý OptionAttribute (thuộc tính sản phẩm như: Size, Màu sắc, Chất liệu…)
- * và OptionValue (giá trị của từng thuộc tính như: S, M, L; Đỏ, Xanh…).
- *
- * Tất cả endpoint yêu cầu userId + role = ADMIN (kiểm tra trong service qua AdminProtectedAccess).
- *
- * Base URL: /api/admin
- */
+
 @RestController
 @RequestMapping(Shared.BASE_URL_ADMIN)
 @RequiredArgsConstructor
@@ -35,14 +30,6 @@ public class AdminOptionAttributeController {
 
     private final AdminOptionAttributeService optionAttributeService;
 
-    // ─────────────────────────────────────────────────────────────
-    // OPTION ATTRIBUTE ENDPOINTS
-    // ─────────────────────────────────────────────────────────────
-
-    /**
-     * GET /api/admin/option-attributes
-     * Lấy danh sách tất cả thuộc tính (kèm danh sách value của mỗi thuộc tính).
-     */
     @GetMapping("/option-attributes")
     public ResponseEntity<ApiResponse<List<AdminOptionAttributeResponse>>> listOptionAttributes(
             @CurrentUser AccountEntity currentUser) {
@@ -57,10 +44,23 @@ public class AdminOptionAttributeController {
         }
     }
 
-    /**
-     * POST /api/admin/option-attributes
-     * Tạo mới một thuộc tính (có thể kèm danh sách values ban đầu).
-     */
+    @GetMapping("/option-attributes/search")
+    public ResponseEntity<ApiResponse<Page<AdminOptionAttributeResponse>>> searchProducts(
+            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int limit,
+            @CurrentUser AccountEntity currentUser
+    ) {
+        try {
+            Page<AdminOptionAttributeResponse> response = optionAttributeService.searchOptionAttribute(name, currentUser, page, limit);
+            return ResponseEntity.ok(ApiResponse.success(response, "Tìm tài khoản thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi server: " + e.getMessage(),
+                            "/api/accounts/search"));
+        }
+    }
+
     @PostMapping("/option-attributes")
     public ResponseEntity<ApiResponse<AdminOptionAttributeResponse>> createOptionAttribute(
             @Valid @RequestBody AdminOptionAttributeRequest request,
@@ -81,33 +81,43 @@ public class AdminOptionAttributeController {
         }
     }
 
-    /**
-     * GET /api/admin/option-attributes/{id}
-     * Lấy chi tiết một thuộc tính (kèm danh sách values).
-     */
+
     @GetMapping("/option-attributes/{id}")
     public ResponseEntity<ApiResponse<AdminOptionAttributeResponse>> getOptionAttributeDetail(
             @PathVariable Long id,
             @CurrentUser AccountEntity currentUser) {
         try {
-            AdminOptionAttributeResponse response =
-                    optionAttributeService.getOptionAttributeDetail(id, currentUser);
-            return ResponseEntity.ok(ApiResponse.success(response, "Lấy chi tiết thuộc tính thành công"));
+            AdminOptionAttributeResponse response = optionAttributeService.getOptionAttributeDetail(
+                    id,
+                    currentUser
+            );
+
+            return ResponseEntity.ok(
+                    ApiResponse.success(
+                        response,
+                        "Lấy chi tiết thuộc tính thành công"
+                    )
+            );
         } catch (NotImplementedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ApiResponse.error(HttpStatus.FORBIDDEN.value(), e.getMessage(),
-                            "/api/admin/option-attributes/" + id));
+                    .body(
+                            ApiResponse.error(HttpStatus.FORBIDDEN.value(),
+                            e.getMessage(),
+                            "/api/admin/option-attributes/" + id)
+                    );
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(),
-                            "/api/admin/option-attributes/" + id));
+                    .body(
+                            ApiResponse.error(
+                                    HttpStatus.NOT_FOUND.value(),
+                                    e.getMessage(),
+                                    "/api/admin/option-attributes/" + id
+                            )
+                    );
         }
     }
 
-    /**
-     * PUT /api/admin/option-attributes/{id}
-     * Cập nhật tên thuộc tính và toàn bộ values (replace strategy).
-     */
+
     @PutMapping("/option-attributes/{id}")
     public ResponseEntity<ApiResponse<AdminOptionAttributeResponse>> updateOptionAttribute(
             @PathVariable Long id,
@@ -132,10 +142,7 @@ public class AdminOptionAttributeController {
         }
     }
 
-    /**
-     * DELETE /api/admin/option-attributes/{id}
-     * Xóa thuộc tính và toàn bộ values liên kết (cascade).
-     */
+
     @DeleteMapping("/option-attributes/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteOptionAttribute(
             @PathVariable Long id,
@@ -154,14 +161,7 @@ public class AdminOptionAttributeController {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // OPTION VALUE ENDPOINTS (nested under attribute)
-    // ─────────────────────────────────────────────────────────────
 
-    /**
-     * GET /api/admin/option-attributes/{attributeId}/values
-     * Lấy danh sách các value của một thuộc tính cụ thể.
-     */
     @GetMapping("/option-attributes/{attributeId}/values")
     public ResponseEntity<ApiResponse<List<AdminOptionValueResponse>>> listValuesByAttribute(
             @PathVariable Long attributeId,
@@ -181,10 +181,7 @@ public class AdminOptionAttributeController {
         }
     }
 
-    /**
-     * POST /api/admin/option-attributes/{attributeId}/values
-     * Thêm một value mới vào thuộc tính đã có.
-     */
+
     @PostMapping("/option-attributes/{attributeId}/values")
     public ResponseEntity<ApiResponse<AdminOptionValueResponse>> addValueToAttribute(
             @PathVariable Long attributeId,
@@ -210,10 +207,7 @@ public class AdminOptionAttributeController {
         }
     }
 
-    /**
-     * DELETE /api/admin/option-attributes/{attributeId}/values/{valueId}
-     * Xóa một value khỏi thuộc tính.
-     */
+
     @DeleteMapping("/option-attributes/{attributeId}/values/{valueId}")
     public ResponseEntity<ApiResponse<Void>> deleteValue(
             @PathVariable Long attributeId,

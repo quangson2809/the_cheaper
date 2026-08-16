@@ -14,6 +14,7 @@ import com.example.the_cheaper.repository.AccountRepository;
 import com.example.the_cheaper.repository.RoleRepository;
 import com.example.the_cheaper.security.CustomUserDetails;
 import com.example.the_cheaper.security.JwtProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
@@ -30,17 +32,6 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(AccountRepository accountRepository,
-                       RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtProvider jwtProvider,
-                       AuthenticationManager authenticationManager) {
-        this.accountRepository = accountRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtProvider = jwtProvider;
-        this.authenticationManager = authenticationManager;
-    }
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -99,6 +90,9 @@ public class AuthService {
 
         String accessToken = jwtProvider.generateAccessToken(account);
         String refreshToken = jwtProvider.generateRefreshToken(account);
+        account.setRefreshToken(refreshToken);
+        accountRepository.save(account);
+
         String roleName = account.getRole() != null ? account.getRole().getName() : null;
 
         return AuthResponse.builder()
@@ -112,7 +106,11 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(Long userId) {
-        throw new NotImplementedException("Chức năng đăng xuất chưa được triển khai đầy đủ (có thể cần Redis hoặc bảng lưu blacklist token)");
+    public void logout(Long accountId) {
+        AccountEntity account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản không tồn tại"));
+
+        account.setRefreshToken(null);
+        accountRepository.save(account);
     }
 }

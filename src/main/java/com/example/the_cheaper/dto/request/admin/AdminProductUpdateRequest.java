@@ -16,18 +16,20 @@ public class AdminProductUpdateRequest {
     private String name;
 
     private String description;
-    private Long materialId;
+
+    private Integer status;
 
     @NotNull(message = "Sale price is required")
     @NotBlank(message = "Sale price is required")
     private BigDecimal salePrice;
-
     @NotNull(message = "Compare price is required")
     @NotBlank(message = "Compare price is required")
     private BigDecimal comparePrice;
 
     private Long brandId;
     private Long categoryId;
+    private Long materialId;
+
     private List<AdminVariantCreateRequest> variantCreates;
     private List<AdminVariantUpdateRequest> variantUpdates;
     private List<Long> variantDeletes;

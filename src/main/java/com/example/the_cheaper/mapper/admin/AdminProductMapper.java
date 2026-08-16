@@ -14,7 +14,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {AdminBrandMapper.class, AdminCategoryMapper.class, AdminMaterialMapper.class})
 public interface AdminProductMapper {
-    @Mapping(target = "status", expression = "java(getStatus(entity))")
     AdminProductResponse toDetailResponse(ProductEntity entity);
 
     @Mapping(target = "id", ignore = true)
@@ -47,14 +46,6 @@ public interface AdminProductMapper {
             return entity.getImages().get(0).getName();
         }
         return null;
-    }
-
-    default String getStatus(ProductEntity entity) {
-        if (entity.getStatus() == 0) {
-            return "Deleted";
-        } else{
-            return "Active";
-        }
     }
 }
 

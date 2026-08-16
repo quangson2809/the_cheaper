@@ -1,6 +1,7 @@
 package com.example.the_cheaper.service.cart;
 
 import com.example.the_cheaper.dto.request.user.UserAddCartItemRequest;
+import com.example.the_cheaper.dto.request.user.UserMergeCartRequest;
 import com.example.the_cheaper.dto.request.user.UserUpdateCartItemRequest;
 import com.example.the_cheaper.dto.response.user.UserCartItemResponse;
 import com.example.the_cheaper.dto.response.user.UserCartOverviewResponse;
@@ -42,11 +43,22 @@ public class CartService {
         return cartMapper.toResponse(cart);
     }
 
+    public UserCartOverviewResponse getCartCount(Long accountId) {
+        CartEntity cart = cartRepository.findByAccountId(accountId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng cho tài khoản"));
+        return cartMapper.toOverviewResponse(cart);
+
+    }
 
     @Transactional
     public UserCartOverviewResponse addCartItem(Long accountId,UserAddCartItemRequest request) {
         CartEntity cart = cartRepository.findByAccountId(accountId).orElseThrow(()->new ResourceNotFoundException("Không tìm thấy giỏ hàng cho tài khoản"));
 
+        addCartItem(cart, request);
+
+        return cartMapper.toOverviewResponse(cartRepository.save(cart));
+    }
+
+    public void addCartItem(CartEntity cart,UserAddCartItemRequest request ) {
         ProductVariantEntity variant = variantRepository.findById(request.getVariantId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy biến thể sản phẩm"));
 
@@ -73,7 +85,6 @@ public class CartService {
             cart.getItems().add(cartItemEntity);
         }
 
-        return cartMapper.toOverviewResponse(cartRepository.save(cart));
     }
 
     @Transactional
@@ -107,6 +118,15 @@ public class CartService {
         cartItemRepository.delete(itemToRemove);
 
         return cartMapper.toResponse(cartRepository.save(cart));
+    }
+
+    @Transactional
+    public void mergeCart(Long accountId, UserMergeCartRequest request) {
+        CartEntity cart = cartRepository.findByAccountId(accountId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng cho tài khoản"));
+        for(UserAddCartItemRequest itemRequest : request.getItems()){
+            addCartItem(cart, itemRequest);
+        }
+        cartRepository.save(cart);
     }
 
 }

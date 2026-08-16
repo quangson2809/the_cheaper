@@ -1,5 +1,6 @@
 package com.example.the_cheaper.dto.request.admin;
 
+import com.example.the_cheaper.entity.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminOrderFilterRequest {
-    private String status;
+    private OrderStatus status;
     @NotNull(message = "Page không được null")
     private int page = 1;
     @NotNull(message = "limit không được null")

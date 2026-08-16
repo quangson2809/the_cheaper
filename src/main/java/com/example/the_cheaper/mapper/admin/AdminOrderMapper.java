@@ -12,13 +12,12 @@ import java.util.List;
 public interface AdminOrderMapper {
 
     @Mapping(target = "finalTotal", source = "finalAmount")
-    @Mapping(target = "paymentStatus", expression = "java(entity.getPaymentStatus())")
     @Mapping(target = "items", source = "items")
     AdminOrderDetailResponse toDetailResponse(OrderEntity entity);
 
+
     @Mapping(target = "finalTotal", source = "finalAmount")
     @Mapping(target = "countItem", expression = "java(entity.getCountItems())")
-    @Mapping(target = "paymentStatus", expression = "java(entity.getPaymentStatus())")
     AdminOrderOverviewResponse toOverviewResponse(OrderEntity entity);
 
     List<AdminOrderOverviewResponse> toOverviewResponseList(List<OrderEntity> entities);

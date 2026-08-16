@@ -1,5 +1,6 @@
 package com.example.the_cheaper.security;
 
+import com.example.the_cheaper.annotation.CurrentUser;
 import com.example.the_cheaper.entity.AccountEntity;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;

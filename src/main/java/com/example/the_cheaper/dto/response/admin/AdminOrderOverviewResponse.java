@@ -22,7 +22,7 @@ public class AdminOrderOverviewResponse {
     private String phone;
 
     private String paymentMethodCode;
-    private String paymentStatus;
+    private int paymentStatus;
 }
 
 

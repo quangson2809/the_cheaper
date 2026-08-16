@@ -4,12 +4,13 @@ import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.request.admin.AdminProductCreateRequest;
 import com.example.the_cheaper.dto.request.admin.AdminProductFilterRequest;
 import com.example.the_cheaper.dto.response.admin.AdminProductOverviewResponse;
+import com.example.the_cheaper.dto.response.user.UserProductOverviewResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.dto.ApiResponse;
 import com.example.the_cheaper.dto.request.admin.AdminProductUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminProductResponse;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 import com.example.the_cheaper.service.admin.AdminProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,21 @@ public class AdminProductController {
         }
     }
 
+    @GetMapping("/search-prodcuts")
+    public ResponseEntity<ApiResponse<Page<AdminProductOverviewResponse>>> searchProducts(
+            @RequestParam String q,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int limit,
+            @CurrentUser AccountEntity currentUser) {
+        try {
+            Page<AdminProductOverviewResponse> response = adminProductService.searchProductsByName(q, currentUser, page, limit);
+            return ResponseEntity.ok(ApiResponse.success(response, "Tìm kiếm sản phẩm thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi server: " + e.getMessage(),
+                            "/api/products/search"));
+        }
+    }
 
     @PostMapping(value = "/products")
     public ResponseEntity<ApiResponse<AdminProductResponse>> createProduct(

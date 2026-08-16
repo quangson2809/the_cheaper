@@ -97,6 +97,7 @@ public class AdminProductService {
                     .orElseThrow(() -> new ResourceNotFoundException("Material not found")));
         }
     }
+
     @Transactional(readOnly = true)
     public Page<AdminProductOverviewResponse> listProducts(AccountEntity currentUser,
                                                            AdminProductFilterRequest request) {
@@ -109,6 +110,13 @@ public class AdminProductService {
                             request.getSortBy(),
                             PageRequest.of(request.getPage() - 1, request.getLimit())
                         )
+                .map(adminProductMapper::toOverviewResponse);
+    }
+
+    @Transactional
+    public Page<AdminProductOverviewResponse> searchProductsByName(String name, AccountEntity currentUser, int page, int limit) {
+        adminProtectedAccess.adminAccess(currentUser);
+        return productRepository.findActiveProductsByNameContainingIgnoreCase(name, PageRequest.of(page - 1, limit))
                 .map(adminProductMapper::toOverviewResponse);
     }
 
@@ -160,8 +168,17 @@ public class AdminProductService {
         if(request.getName() != null) {
             product.setName(request.getName());
         }
+        if(request.getSalePrice() != null) {
+            product.setSalePrice(request.getSalePrice());
+        }
+        if(request.getComparePrice() != null) {
+            product.setComparePrice(request.getComparePrice());
+        }
         if(request.getDescription() != null) {
             product.setDescription(request.getDescription());
+        }
+        if(request.getStatus() != null && request.getStatus() != product.getStatus()) {
+            product.setStatus(request.getStatus());
         }
         if(!product.getBrand().getId().equals(request.getBrandId())) {
             product.setBrand(brandRepository.findById(request.getBrandId())
@@ -265,6 +282,9 @@ public class AdminProductService {
 
             product.getImages().removeAll(imagesToDelete);
             productImageRepository.deleteAll(imagesToDelete);
+            for(ProductImageEntity image : imagesToDelete) {
+                fileStorageService.delete(image.getName());
+            }
         }
     }
 

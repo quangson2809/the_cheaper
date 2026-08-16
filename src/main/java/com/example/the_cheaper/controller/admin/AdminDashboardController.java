@@ -2,6 +2,7 @@ package com.example.the_cheaper.controller.admin;
 
 import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.ApiResponse;
+import com.example.the_cheaper.dto.request.admin.AdminDashboardStatsRequest;
 import com.example.the_cheaper.dto.request.common.SearchRequest;
 import com.example.the_cheaper.dto.response.admin.AdminDashboardResponse;
 import com.example.the_cheaper.exception.NotImplementedException;
@@ -9,17 +10,14 @@ import com.example.the_cheaper.service.admin.AdminDashboardService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
 import java.time.Year;
 import com.example.the_cheaper.dto.response.admin.MonthlyQuantityResponse;
 import com.example.the_cheaper.dto.response.admin.MonthlyRevenueResponse;
 import com.example.the_cheaper.dto.response.admin.OrderStatusRatioResponse;
-import org.springframework.web.bind.annotation.RestController;
 import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 
 @RestController
 @RequestMapping(Shared.BASE_URL_ADMIN)
@@ -33,9 +31,10 @@ public class AdminDashboardController {
 
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<AdminDashboardResponse>> getStats(
+            @RequestParam int year,
             @CurrentUser AccountEntity currentUser) {
         try {
-            AdminDashboardResponse response = adminDashboardService.getDashboardStats(currentUser);
+            AdminDashboardResponse response = adminDashboardService.getDashboardStats(currentUser, year);
             return ResponseEntity.ok(ApiResponse.success(response, "Lấy thống kê dashboard thành công"));
         } catch (NotImplementedException e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
@@ -43,18 +42,18 @@ public class AdminDashboardController {
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<Object>>> globalSearch(
-            @ModelAttribute SearchRequest request,
-            @CurrentUser AccountEntity currentUser) {
-        try {
-            List<Object> response = adminDashboardService.globalSearch(request, currentUser);
-            return ResponseEntity.ok(ApiResponse.success(response, "Tìm kiếm thành công"));
-        } catch (NotImplementedException e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                    .body(ApiResponse.error(HttpStatus.NOT_IMPLEMENTED.value(), e.getMessage(), "/api/admin/search"));
-        }
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<ApiResponse<List<Object>>> globalSearch(
+//            @ModelAttribute SearchRequest request,
+//            @CurrentUser AccountEntity currentUser) {
+//        try {
+//            List<Object> response = adminDashboardService.globalSearch(request, currentUser);
+//            return ResponseEntity.ok(ApiResponse.success(response, "Tìm kiếm thành công"));
+//        } catch (NotImplementedException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
+//                    .body(ApiResponse.error(HttpStatus.NOT_IMPLEMENTED.value(), e.getMessage(), "/api/admin/search"));
+//        }
+//    }
 
     @GetMapping("/monthly-revenue")
     public ResponseEntity<ApiResponse<List<MonthlyRevenueResponse>>> getMonthlyRevenue(
@@ -84,6 +83,8 @@ public class AdminDashboardController {
         List<OrderStatusRatioResponse> data = adminDashboardService.getOrderStatusRatios(currentUser);
         return ResponseEntity.ok(ApiResponse.success(data, "Lấy thống kê trạng thái đơn hàng thành công"));
     }
+
+
 }
 
 

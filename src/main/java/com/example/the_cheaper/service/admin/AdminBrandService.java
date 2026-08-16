@@ -1,6 +1,7 @@
 package com.example.the_cheaper.service.admin;
 
 import com.example.the_cheaper.dto.request.admin.AdminBrandRequest;
+import com.example.the_cheaper.dto.response.admin.AdminAccountResponse;
 import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.entity.BrandEntity;
 import com.example.the_cheaper.entity.CategoryEntity;
@@ -9,6 +10,8 @@ import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminBrandMapper;
 import com.example.the_cheaper.repository.BrandRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,15 @@ public class AdminBrandService {
         return brandRepository.findAll().stream()
                 .map(adminBrandMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Page<AdminBrandResponse> searchBrands(String name, AccountEntity currentUser, int page, int limit) {
+        adminProtectedAccess.adminAccess(currentUser);
+        Page<BrandEntity> brandEntities = brandRepository.findBrandByNameContainingIgnoreCase(name,
+                PageRequest.of(page  - 1, limit));
+
+        return brandEntities.map(adminBrandMapper::toResponse);
     }
 
     @Transactional

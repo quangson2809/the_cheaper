@@ -1,5 +1,6 @@
 package com.example.the_cheaper.unit.service;
 
+import com.example.the_cheaper.dto.request.admin.AdminDashboardStatsRequest;
 import com.example.the_cheaper.dto.response.admin.MonthlyRevenueResponse;
 import com.example.the_cheaper.dto.response.admin.MonthlyQuantityResponse;
 import com.example.the_cheaper.dto.response.admin.OrderStatusRatioResponse;
@@ -36,21 +37,6 @@ class AdminDashboardServiceTest {
 
     @InjectMocks
     private AdminDashboardService adminDashboardService;
-
-    @Test
-    @DisplayName("getDashboardStats - Should throw NotImplementedException")
-    void getDashboardStats_ShouldThrowNotImplementedException() {
-        // Arrange
-        AccountEntity admin = AccountFixtures.createActiveAdminAccount();
-        doNothing().when(adminProtectedAccess).adminAccess(admin);
-
-        // Act & Assert
-        assertThatThrownBy(() -> adminDashboardService.getDashboardStats(admin))
-                .isInstanceOf(NotImplementedException.class)
-                .hasMessage("Chức năng dashboard chưa được triển khai");
-                
-        verify(adminProtectedAccess).adminAccess(admin);
-    }
 
     @Test
     @DisplayName("getMonthlyRevenue - Should return full 12 months data")

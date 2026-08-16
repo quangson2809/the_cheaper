@@ -185,5 +185,15 @@ public class FileStorageService implements StorageService {
          */
     }
 
+    @Override
+    public void delete(String fileName) {
+        try {
+            Path filePath = rootLocation.resolve(fileName).normalize();
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new StorageException("Failed to delete file: " + fileName, e);
+        }
+    }
+
 
 }

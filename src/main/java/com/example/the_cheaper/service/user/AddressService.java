@@ -1,4 +1,4 @@
-package com.example.the_cheaper.service.address;
+package com.example.the_cheaper.service.user;
 
 import com.example.the_cheaper.dto.request.user.UserAddressCreateRequest;
 import com.example.the_cheaper.dto.request.user.UserAddressUpdateRequest;
@@ -33,7 +33,9 @@ public class AddressService {
 
     @Transactional(readOnly = true)
     public UserAddressResponse getAddressById(Long accountId, Long addressId) {
-        AddressEntity address = getAddress(accountId, addressId);
+        AddressEntity address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy địa chỉ"));
+
         return userAddressMapper.toResponse(address);
     }
 
@@ -42,34 +44,45 @@ public class AddressService {
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tài khoản không tồn tại"));
 
-        if (request.isDefault()) {
+        AddressEntity address = new AddressEntity();
+        address.setHomeNumber(request.getHomeNumber());
+        address.setStreet(request.getStreet());
+        address.setDistrict(request.getDistrict());
+        address.setCity(request.getCity());
+        if(request.isDefault()) {
             resetDefaultAddress(accountId);
-        } else {
-            // Nếu user chưa có địa chỉ nào thì địa chỉ đầu tiên mặc định là default
-            List<AddressEntity> currentAddresses = addressRepository.findByAccountId(accountId);
-            if (currentAddresses.isEmpty()) {
-                request.setDefault(true);
-            }
+            address.setDefault(true);
         }
 
-        AddressEntity address = userAddressMapper.toEntity(request);
         address.setAccount(account);
+
         return userAddressMapper.toResponse(addressRepository.save(address));
     }
 
     @Transactional
     public UserAddressResponse updateAddress(Long accountId, Long addressId, UserAddressUpdateRequest request) {
-        AddressEntity address = getAddress(accountId, addressId);
+        AddressEntity address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy địa chỉ"));
 
         if (request.isDefault() && !address.isDefault()) {
             resetDefaultAddress(accountId);
         }
 
-        userAddressMapper.updateEntity(address, request);
+        if(request.getHomeNumber() != null ) {
+            address.setHomeNumber(request.getHomeNumber());
+        }
+        if (request.getStreet() != null) {
+            address.setStreet(request.getStreet());
+        }
+        if(request.getDistrict() != null) {
+            address.setDistrict(request.getDistrict());
+        }
+        if(request.getCity() != null) {
+            address.setCity(request.getCity());
+        }
 
         // Đảm bảo phải có ít nhất 1 default address nếu address hiện tại đang là default mà bị update thành false
         if (!request.isDefault() && address.isDefault()) {
-             // Logic để chọn address khác làm default có thể phức tạp.
              // Tạm thời bắt buộc giữ default nếu user chỉ có 1 địa chỉ hoặc đây là địa chỉ default duy nhất.
             throw new IllegalArgumentException("Không thể bỏ mặc định địa chỉ này. Vui lòng chọn địa chỉ khác làm mặc định trước.");
         }
@@ -79,30 +92,26 @@ public class AddressService {
 
     @Transactional
     public void deleteAddress(Long accountId, Long addressId) {
-        AddressEntity address = getAddress(accountId, addressId);
+        AddressEntity address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy địa chỉ"));
+
         if (address.isDefault()) {
             throw new IllegalArgumentException("Không thể xóa địa chỉ mặc định");
         }
+
         addressRepository.delete(address);
     }
 
     @Transactional
     public void setDefaultAddress(Long accountId, Long addressId) {
-        AddressEntity address = getAddress(accountId, addressId);
+        AddressEntity address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy địa chỉ"));
+
         if (!address.isDefault()) {
             resetDefaultAddress(accountId);
             address.setDefault(true);
             addressRepository.save(address);
         }
-    }
-
-    private AddressEntity getAddress(Long accountId, Long addressId) {
-        AddressEntity address = addressRepository.findById(addressId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy địa chỉ"));
-        if (!address.getAccount().getId().equals(accountId)) {
-            throw new IllegalArgumentException("Địa chỉ không thuộc về tài khoản này");
-        }
-        return address;
     }
 
     private void resetDefaultAddress(Long accountId) {

@@ -3,16 +3,18 @@ package com.example.the_cheaper.controller.admin;
 import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.ApiResponse;
 import com.example.the_cheaper.dto.request.admin.AdminBrandRequest;
+import com.example.the_cheaper.dto.response.admin.AdminAccountResponse;
 import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.service.admin.AdminBrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.annotation.CurrentUser;
 import java.util.List;
 
 @RestController
@@ -27,6 +29,23 @@ public class AdminBrandController {
             @CurrentUser AccountEntity currentUser) {
         List<AdminBrandResponse> response = adminBrandService.listBrands(currentUser);
         return ResponseEntity.ok(ApiResponse.success(response, "Lấy danh sách thương hiệu thành công"));
+    }
+
+    @GetMapping("/brands/search")
+    public ResponseEntity<ApiResponse<Page<AdminBrandResponse>>> searchProducts(
+            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(required = false, defaultValue = "10") int limit,
+            @CurrentUser AccountEntity currentUser
+    ) {
+        try {
+            Page<AdminBrandResponse> response = adminBrandService.searchBrands(name, currentUser, page, limit);
+            return ResponseEntity.ok(ApiResponse.success(response, "Tìm tài khoản thành công"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi server: " + e.getMessage(),
+                            "/api/accounts/search"));
+        }
     }
 
     @PostMapping("/brands")

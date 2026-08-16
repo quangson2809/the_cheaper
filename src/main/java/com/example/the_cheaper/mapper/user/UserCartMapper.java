@@ -23,6 +23,7 @@ public interface UserCartMapper {
     @Mapping(target = "productName", source = "variant.product.name")
     @Mapping(target = "price", expression = "java(entity.getVariant().getOverridePrice())")
     @Mapping(target = "optionNames", source = "variant.optionValues", qualifiedByName = "optionValuesToText")
+    @Mapping(target = "thumbnail", expression = "java(entity.getVariant().getProduct().getThumbnail())")
     UserCartItemResponse toResponse(CartItemEntity entity);
 
     CartItemEntity toCartItemEntity(Long variantId, int quantity);
