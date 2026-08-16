@@ -9,6 +9,7 @@ import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminPermissionMapper;
 import com.example.the_cheaper.repository.PermissionRepository;
+import com.example.the_cheaper.repository.RolePermissionRepository;
 import com.example.the_cheaper.service.admin.AdminPermissionService;
 import com.example.the_cheaper.service.admin.AdminProtectedAccess;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +30,9 @@ class AdminPermissionServiceTest {
 
     @Mock
     private PermissionRepository permissionRepository;
+
+    @Mock
+    private RolePermissionRepository rolePermissionRepository;
 
     @Mock
     private AdminPermissionMapper permissionMapper;
@@ -145,14 +149,29 @@ class AdminPermissionServiceTest {
     }
 
     @Test
-    @DisplayName("deletePermission - should delete existing permission")
+    @DisplayName("deletePermission - should delete existing unassigned permission")
     void deletePermission_ShouldDeleteExisting() {
         AccountEntity admin = new AccountEntity();
         when(permissionRepository.existsById(1L)).thenReturn(true);
+        when(rolePermissionRepository.existsByPermissionId(1L)).thenReturn(false);
 
         adminPermissionService.deletePermission(1L, admin);
 
         verify(adminProtectedAccess).adminAccess(admin);
         verify(permissionRepository).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deletePermission - should reject permission assigned to a role")
+    void deletePermission_ShouldRejectAssignedPermission() {
+        AccountEntity admin = new AccountEntity();
+        when(permissionRepository.existsById(1L)).thenReturn(true);
+        when(rolePermissionRepository.existsByPermissionId(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> adminPermissionService.deletePermission(1L, admin))
+                .isInstanceOf(ResourceAlreadyExistsException.class)
+                .hasMessageContaining("đang được gán cho role");
+
+        verify(permissionRepository, never()).deleteById(1L);
     }
 }
