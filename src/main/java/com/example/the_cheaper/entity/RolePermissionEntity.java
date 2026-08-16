@@ -35,5 +35,5 @@ public class RolePermissionEntity {
             name = "permission_id",
             nullable = false
     )
-    private RoleEntity permission;
+    private PermissionEntity permission;
 }

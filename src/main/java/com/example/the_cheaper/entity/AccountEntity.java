@@ -34,10 +34,6 @@ public class AccountEntity {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    private RoleEntity role;
-
     @Column(name = "reward_point")
     private int rewardPoint;
 
@@ -84,7 +80,4 @@ public class AccountEntity {
         this.passwordHash = newPasswordHash;
     }
 
-    public void changeRole(RoleEntity newRole) {
-        this.role = newRole;
-    }
 }
