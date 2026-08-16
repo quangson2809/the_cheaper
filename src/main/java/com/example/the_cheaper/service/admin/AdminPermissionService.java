@@ -9,6 +9,7 @@ import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminPermissionMapper;
 import com.example.the_cheaper.repository.PermissionRepository;
+import com.example.the_cheaper.repository.RolePermissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminPermissionService {
 
     private final PermissionRepository permissionRepository;
+    private final RolePermissionRepository rolePermissionRepository;
     private final AdminPermissionMapper permissionMapper;
     private final AdminProtectedAccess adminProtectedAccess;
 
@@ -79,6 +81,11 @@ public class AdminPermissionService {
         if (!permissionRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     "Không tìm thấy permission với id: " + id);
+        }
+
+        if (rolePermissionRepository.existsByPermissionId(id)) {
+            throw new ResourceAlreadyExistsException(
+                    "Không thể xóa permission vì permission đang được gán cho role");
         }
 
         permissionRepository.deleteById(id);
