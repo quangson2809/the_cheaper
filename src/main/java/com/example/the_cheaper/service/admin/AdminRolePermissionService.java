@@ -6,6 +6,7 @@ import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.PermissionEntity;
 import com.example.the_cheaper.entity.RoleEntity;
 import com.example.the_cheaper.entity.RolePermissionEntity;
+import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.repository.PermissionRepository;
 import com.example.the_cheaper.repository.RolePermissionRepository;
@@ -16,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,7 +56,7 @@ public class AdminRolePermissionService {
 
         Set<Long> uniquePermissionIds = new HashSet<>(permissionIds);
         if (uniquePermissionIds.size() != permissionIds.size()) {
-            throw new IllegalArgumentException("Permission ids không được trùng nhau");
+            throw new InvalidInputException("Permission ids không được trùng nhau");
         }
 
         List<PermissionEntity> permissions = uniquePermissionIds.isEmpty()
@@ -74,7 +73,9 @@ public class AdminRolePermissionService {
                     "Không tìm thấy permission với id: " + missingIds);
         }
 
-        rolePermissionRepository.deleteAll(rolePermissionRepository.findAllByRoleId(roleId));
+        List<RolePermissionEntity> currentAssignments =
+                rolePermissionRepository.findAllByRoleId(roleId);
+        rolePermissionRepository.deleteAll(currentAssignments);
 
         List<RolePermissionEntity> assignments = permissions.stream()
                 .map(permission -> RolePermissionEntity.builder()
