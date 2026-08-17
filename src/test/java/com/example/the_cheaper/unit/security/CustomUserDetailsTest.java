@@ -27,7 +27,10 @@ class CustomUserDetailsTest {
 
         assertThat(details.getAuthorities())
                 .extracting("authority")
-                .containsExactlyInAnyOrder("ROLE_ADMIN", "PRODUCT_READ", "PRODUCT_UPDATE");
+                .containsExactlyInAnyOrder(
+                        "ROLE_ADMIN",
+                        "PRODUCT_READ",
+                        "PRODUCT_UPDATE");
     }
 
     @Test

@@ -2,9 +2,12 @@ package com.example.the_cheaper.security;
 
 import com.example.the_cheaper.entity.AccountEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -20,6 +23,22 @@ public class CustomUserDetails implements UserDetails {
 
     public AccountEntity getAccount() {
         return account;
+    }
+
+    public static Collection<? extends GrantedAuthority> authorities(
+            String roleName,
+            List<String> permissionCodes) {
+        Stream<GrantedAuthority> roleAuthorities = roleName == null || roleName.isBlank()
+                ? Stream.empty()
+                : Stream.of(new SimpleGrantedAuthority("ROLE_" + roleName));
+
+        Stream<GrantedAuthority> permissionAuthorities = permissionCodes == null
+                ? Stream.empty()
+                : permissionCodes.stream()
+                .filter(code -> code != null && !code.isBlank())
+                .map(SimpleGrantedAuthority::new);
+
+        return Stream.concat(roleAuthorities, permissionAuthorities).toList();
     }
 
     @Override
