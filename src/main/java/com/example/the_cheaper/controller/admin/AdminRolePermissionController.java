@@ -41,4 +41,25 @@ public class AdminRolePermissionController {
         return ResponseEntity.ok(
                 ApiResponse.success(response, "Cập nhật permission của role thành công"));
     }
+
+    @PostMapping("/{roleId}/permissions/{permissionId}")
+    public ResponseEntity<ApiResponse<AdminRolePermissionResponse>> grantPermission(
+            @PathVariable Long roleId,
+            @PathVariable Long permissionId,
+            @CurrentUser AccountEntity currentUser) {
+        AdminRolePermissionResponse response =
+                adminRolePermissionService.grantPermission(roleId, permissionId, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success(response, "Cấp permission cho role thành công"));
+    }
+
+    @DeleteMapping("/{roleId}/permissions/{permissionId}")
+    public ResponseEntity<ApiResponse<Void>> revokePermission(
+            @PathVariable Long roleId,
+            @PathVariable Long permissionId,
+            @CurrentUser AccountEntity currentUser) {
+        adminRolePermissionService.revokePermission(roleId, permissionId, currentUser);
+        return ResponseEntity.ok(
+                ApiResponse.success(null, "Hủy permission của role thành công"));
+    }
 }
