@@ -1,15 +1,11 @@
 package com.example.the_cheaper.service.admin;
 
-import com.example.the_cheaper.dto.request.admin.AdminUserFilterRequest;
-import com.example.the_cheaper.dto.response.admin.AdminAccountResponse;
-import com.example.the_cheaper.dto.response.admin.AdminProductOverviewResponse;
-import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.exception.NotImplementedException;
-
-import java.util.List;
-
 import com.example.the_cheaper.dto.request.admin.AdminCreateAdminRequest;
-import com.example.the_cheaper.entity.Role;
+import com.example.the_cheaper.dto.request.admin.AdminUserFilterRequest;
+import com.example.the_cheaper.dto.request.admin.AssignAccountRoleRequest;
+import com.example.the_cheaper.dto.response.admin.AdminAccountResponse;
+import com.example.the_cheaper.dto.response.admin.AdminAccountRoleResponse;
+import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.RoleEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
@@ -38,28 +34,27 @@ public class AdminUserService {
         Page<AccountEntity> accountEntities = accountRepository.findAllBy(
                 request.getStatus(),
                 request.getRole(),
-                PageRequest.of(request.getPage()  - 1, request.getLimit()));
+                PageRequest.of(request.getPage() - 1, request.getLimit()));
         return accountEntities.map(adminAccountMapper::toResponse);
     }
 
     @Transactional
     public Page<AdminAccountResponse> searchAccountByPhone(String phone, AccountEntity currentUser, int page, int limit) {
         adminProtectedAccess.adminAccess(currentUser);
-        Page<AccountEntity> accountEntities = accountRepository.findActiveAccountByPhoneContainingIgnoreCase(phone,
-                PageRequest.of(page  - 1, limit));
-
+        Page<AccountEntity> accountEntities = accountRepository.findActiveAccountByPhoneContainingIgnoreCase(
+                phone, PageRequest.of(page - 1, limit));
         return accountEntities.map(adminAccountMapper::toResponse);
     }
 
     @Transactional
     public AdminAccountResponse createAdminAccount(AccountEntity currentUser, AdminCreateAdminRequest request) {
         adminProtectedAccess.adminAccess(currentUser);
-        
+
         if (accountRepository.existsByEmail(request.getEmail())) {
             throw new ResourceAlreadyExistsException("Email đã được sử dụng");
         }
-        
-        RoleEntity adminRole = roleRepository.findByName(Role.ADMIN.name())
+
+        RoleEntity adminRole = roleRepository.findByName("ADMIN")
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role ADMIN"));
 
         AccountEntity newAdmin = AccountEntity.builder()
@@ -70,14 +65,41 @@ public class AdminUserService {
                 .role(adminRole)
                 .status(1)
                 .build();
-                
+
         return adminAccountMapper.toResponse(accountRepository.save(newAdmin));
+    }
+
+    @Transactional(readOnly = true)
+    public AdminAccountRoleResponse getAccountRole(AccountEntity currentUser, Long accountId) {
+        adminProtectedAccess.adminAccess(currentUser);
+        AccountEntity account = getAccount(accountId);
+        return toRoleResponse(account);
+    }
+
+    @Transactional
+    public AdminAccountRoleResponse assignAccountRole(
+            AccountEntity currentUser,
+            Long accountId,
+            AssignAccountRoleRequest request) {
+        adminProtectedAccess.adminAccess(currentUser);
+
+        AccountEntity account = getAccount(accountId);
+        RoleEntity role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy role với id: " + request.getRoleId()));
+
+        if (account.getRole() != null && account.getRole().getId().equals(role.getId())) {
+            return toRoleResponse(account);
+        }
+
+        account.assignRole(role);
+        accountRepository.save(account);
+        return toRoleResponse(account);
     }
 
     @Transactional
     public void deleteAccount(Long accountId) {
-        AccountEntity account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+        AccountEntity account = getAccount(accountId);
         if (account.getStatus() != 0) {
             throw new RuntimeException("Chỉ có thể xóa các tài khoản có trạng thái là 0 (Ngừng hoạt động)");
         }
@@ -85,12 +107,27 @@ public class AdminUserService {
     }
 
     @Transactional
-    public AdminAccountResponse updateAccountStatus(AccountEntity currentUser,Long accountId, int status) {
+    public AdminAccountResponse updateAccountStatus(AccountEntity currentUser, Long accountId, int status) {
         adminProtectedAccess.adminAccess(currentUser);
-        AccountEntity account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+        AccountEntity account = getAccount(accountId);
         account.setStatus(status);
         accountRepository.save(account);
         return adminAccountMapper.toResponse(account);
+    }
+
+    private AccountEntity getAccount(Long accountId) {
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy tài khoản với id: " + accountId));
+    }
+
+    private AdminAccountRoleResponse toRoleResponse(AccountEntity account) {
+        RoleEntity role = account.getRole();
+        return AdminAccountRoleResponse.builder()
+                .accountId(account.getId())
+                .roleId(role != null ? role.getId() : null)
+                .roleName(role != null ? role.getName() : null)
+                .roleDescription(role != null ? role.getDescription() : null)
+                .build();
     }
 }
