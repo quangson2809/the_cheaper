@@ -29,7 +29,6 @@ public class JwtProvider {
     public String generateAccessToken(AccountEntity account) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", account.getId());
-        claims.put("role", account.getRole() != null ? account.getRole().getName() : "");
 
         return buildToken(claims, account.getEmail(), jwtExpiration);
     }
@@ -38,7 +37,10 @@ public class JwtProvider {
         return buildToken(new HashMap<>(), account.getEmail(), refreshExpiration);
     }
 
-    private String buildToken(Map<String, Object> extraClaims, String subject, long expiration) {
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            String subject,
+            long expiration) {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(subject)
@@ -53,18 +55,14 @@ public class JwtProvider {
     }
 
     public Long extractUserId(String token) {
-        final Claims claims = extractAllClaims(token);
-        return claims.get("userId", Long.class);
-    }
-
-    public String extractRole(String token) {
-        final Claims claims = extractAllClaims(token);
-        return claims.get("role", String.class);
+        return extractAllClaims(token).get("userId", Long.class);
     }
 
     public boolean isTokenValid(String token, String email) {
-        final String tokenEmail = extractEmail(token);
-        return (tokenEmail.equals(email)) && !isTokenExpired(token);
+        String tokenEmail = extractEmail(token);
+        return tokenEmail != null
+                && tokenEmail.equals(email)
+                && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
@@ -75,8 +73,10 @@ public class JwtProvider {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+    public <T> T extractClaim(
+            String token,
+            Function<Claims, T> claimsResolver) {
+        Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
