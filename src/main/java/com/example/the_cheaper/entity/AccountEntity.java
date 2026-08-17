@@ -37,7 +37,7 @@ public class AccountEntity {
     @Column(name = "reward_point")
     private int rewardPoint;
 
-    private int status = 1; // 1: active, 0: inactive
+    private int status = 1;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -45,19 +45,22 @@ public class AccountEntity {
 
     private String refreshToken;
 
+    /** Transitional compatibility field. Runtime authorization uses account_roles. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
+    @Deprecated
     private RoleEntity role;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<AccountRoleEntity> accountRoles = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AddressEntity> addresses = new ArrayList<>();
 
-    @OneToOne(mappedBy = "account",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private CartEntity cart;
-    // ===== Domain Logic Methods =====
 
     public boolean isActive() {
         return this.status == 1;
@@ -84,7 +87,23 @@ public class AccountEntity {
         this.passwordHash = newPasswordHash;
     }
 
-    public void assignRole(RoleEntity role) {
+    public void assignPrimaryRole(RoleEntity role) {
         this.role = role;
+    }
+
+    public void addRole(RoleEntity role) {
+        if (role == null || accountRoles.stream()
+                .anyMatch(accountRole -> accountRole.getRole().getId().equals(role.getId()))) {
+            return;
+        }
+
+        accountRoles.add(AccountRoleEntity.builder()
+                .account(this)
+                .role(role)
+                .build());
+    }
+
+    public void clearRoles() {
+        accountRoles.clear();
     }
 }

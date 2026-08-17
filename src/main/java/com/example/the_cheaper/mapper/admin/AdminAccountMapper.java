@@ -10,5 +10,4 @@ public interface AdminAccountMapper {
 
     @Mapping(target = "role", source = "role.name")
     AdminAccountResponse toResponse(AccountEntity entity);
-
 }

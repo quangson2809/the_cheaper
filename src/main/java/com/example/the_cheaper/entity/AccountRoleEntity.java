@@ -5,11 +5,11 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "user_roles",
+        name = "account_roles",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_user_role",
-                        columnNames = {"user_id", "role_id"}
+                        name = "uk_account_role",
+                        columnNames = {"account_id", "role_id"}
                 )
         }
 )
@@ -19,21 +19,16 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class AccountRoleEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "account_id",
-            nullable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "account_id", nullable = false)
     private AccountEntity account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "role_id",
-            nullable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
 }
