@@ -45,6 +45,10 @@ public class AccountEntity {
 
     private String refreshToken;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private RoleEntity role;
+
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AddressEntity> addresses = new ArrayList<>();
@@ -80,4 +84,7 @@ public class AccountEntity {
         this.passwordHash = newPasswordHash;
     }
 
+    public void assignRole(RoleEntity role) {
+        this.role = role;
+    }
 }
