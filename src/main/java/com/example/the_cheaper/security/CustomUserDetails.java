@@ -7,12 +7,16 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class CustomUserDetails implements UserDetails {
     private final AccountEntity account;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(AccountEntity account) {
+    public CustomUserDetails(AccountEntity account, Collection<? extends GrantedAuthority> authorities) {
         this.account = account;
+        this.authorities = authorities;
     }
 
     public AccountEntity getAccount() {
@@ -21,10 +25,23 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (account.getRole() == null) {
-            return Collections.emptyList();
-        }
-        return Collections.singleton(new SimpleGrantedAuthority(account.getRole().getName()));
+        return authorities;
+    }
+
+    public static Collection<? extends GrantedAuthority> authorities(
+            String roleName,
+            List<String> permissionCodes) {
+        Stream<GrantedAuthority> roleAuthority = roleName == null || roleName.isBlank()
+                ? Stream.empty()
+                : Stream.of(new SimpleGrantedAuthority("ROLE_" + roleName));
+
+        Stream<GrantedAuthority> permissionAuthorities = permissionCodes == null
+                ? Stream.empty()
+                : permissionCodes.stream()
+                .filter(code -> code != null && !code.isBlank())
+                .map(SimpleGrantedAuthority::new);
+
+        return Stream.concat(roleAuthority, permissionAuthorities).toList();
     }
 
     @Override
