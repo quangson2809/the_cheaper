@@ -36,7 +36,6 @@ public class PasswordService {
 
     @Transactional
     public String forgotPassword(ForgotPasswordRequest request) {
-
         AccountEntity account = accountRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy tài khoản với email: " + request.getEmail()));
@@ -56,7 +55,6 @@ public class PasswordService {
         System.out.println("Generated OTP for " + request.getEmail() + ": " + otp);
         return otp;
     }
-
 
     @Transactional
     public AuthResponse verifyOtpAndResetPassword(VerifyOtpRequest request) {
@@ -84,7 +82,13 @@ public class PasswordService {
         account.setRefreshToken(refreshToken);
         accountRepository.save(account);
 
-        String roleName = account.getRole() != null ? account.getRole().getName() : null;
+        String roleName = account.getAccountRoles().stream()
+                .map(accountRole -> accountRole.getRole())
+                .filter(role -> role != null && role.getName() != null)
+                .map(role -> role.getName())
+                .findFirst()
+                .orElse(null);
+
         return AuthResponse.builder()
                 .id(account.getId())
                 .name(account.getName())
@@ -94,7 +98,6 @@ public class PasswordService {
                 .refreshToken(refreshToken)
                 .build();
     }
-
 
     @Transactional
     public void changePassword(Long userId, ChangePasswordRequest request) {
@@ -109,11 +112,9 @@ public class PasswordService {
         accountRepository.save(account);
     }
 
-
     private String generateOtp() {
         SecureRandom random = new SecureRandom();
-        int otp = 100000 + random.nextInt(900000); // 6 digits: 100000–999999
+        int otp = 100000 + random.nextInt(900000);
         return String.valueOf(otp);
     }
 }
-
