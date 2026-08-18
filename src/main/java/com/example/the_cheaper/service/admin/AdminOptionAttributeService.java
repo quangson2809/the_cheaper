@@ -1,13 +1,10 @@
 package com.example.the_cheaper.service.admin;
 
-import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.request.admin.AdminOptionAttributeRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOptionValueRequest;
-import com.example.the_cheaper.dto.response.admin.AdminBrandResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOptionAttributeResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOptionValueResponse;
 import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.entity.BrandEntity;
 import com.example.the_cheaper.entity.OptionAttributeEntity;
 import com.example.the_cheaper.entity.OptionValueEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
@@ -31,12 +28,9 @@ public class AdminOptionAttributeService {
     private final OptionAttributeRepository optionAttributeRepository;
     private final OptionValueRepository optionValueRepository;
     private final AdminOptionAttributeMapper adminOptionAttributeMapper;
-    private final AdminProtectedAccess adminProtectedAccess;
-
 
     @Transactional(readOnly = true)
     public List<AdminOptionAttributeResponse> listOptionAttributes(AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         return optionAttributeRepository.findAll().stream()
                 .map(adminOptionAttributeMapper::toResponse)
                 .collect(Collectors.toList());
@@ -44,16 +38,14 @@ public class AdminOptionAttributeService {
 
     @Transactional
     public Page<AdminOptionAttributeResponse> searchOptionAttribute(String name, AccountEntity currentUser, int page, int limit) {
-        adminProtectedAccess.adminAccess(currentUser);
         Page<OptionAttributeEntity> optionAttributeEntities = optionAttributeRepository.findOptionAttributeByNameContainingIgnoreCase(name,
-                PageRequest.of(page  - 1, limit));
+                PageRequest.of(page - 1, limit));
 
         return optionAttributeEntities.map(adminOptionAttributeMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
     public List<AdminOptionValueResponse> listValuesByAttribute(Long attributeId, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         OptionAttributeEntity attribute = optionAttributeRepository.findById(attributeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + attributeId));
         return optionValueRepository.findByOptionAttribute(attribute).stream()
@@ -61,21 +53,16 @@ public class AdminOptionAttributeService {
                 .collect(Collectors.toList());
     }
 
-
     @Transactional(readOnly = true)
     public AdminOptionAttributeResponse getOptionAttributeDetail(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         OptionAttributeEntity entity = optionAttributeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + id));
         return adminOptionAttributeMapper.toResponse(entity);
     }
 
-
     @Transactional
     public AdminOptionAttributeResponse createOptionAttribute(AdminOptionAttributeRequest request,
-                                                              AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
+                                                               AccountEntity currentUser) {
         if (optionAttributeRepository.existsByName(request.getName())) {
             throw new ResourceAlreadyExistsException("Thuộc tính '" + request.getName() + "' đã tồn tại");
         }
@@ -88,8 +75,8 @@ public class AdminOptionAttributeService {
         return adminOptionAttributeMapper.toResponse(optionAttributeRepository.save(attribute));
     }
 
-    public void createOptionValue(OptionAttributeEntity attribute,List<AdminOptionValueRequest> request) {
-        if (request!= null && !request.isEmpty()) {
+    public void createOptionValue(OptionAttributeEntity attribute, List<AdminOptionValueRequest> request) {
+        if (request != null && !request.isEmpty()) {
             List<OptionValueEntity> values = request.stream()
                     .map(valReq -> {
                         OptionValueEntity val = adminOptionAttributeMapper.toValueEntity(valReq);
@@ -101,14 +88,10 @@ public class AdminOptionAttributeService {
         }
     }
 
-
-
     @Transactional
     public AdminOptionAttributeResponse updateOptionAttribute(Long id,
-                                                              AdminOptionAttributeRequest request,
-                                                              AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
+                                                               AdminOptionAttributeRequest request,
+                                                               AccountEntity currentUser) {
         OptionAttributeEntity entity = optionAttributeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + id));
 
@@ -121,32 +104,28 @@ public class AdminOptionAttributeService {
     }
 
     public void processOptionAttribute(OptionAttributeEntity entity, String newName) {
-        if (newName != null ){
+        if (newName != null) {
             entity.setName(newName);
         }
-
     }
 
     public void processOptionValue(OptionAttributeEntity entity, List<AdminOptionValueRequest> newValues) {
-        if(newValues != null) {
-            newValues.stream().forEach(valReq -> {
-               for(OptionValueEntity val : entity.getValues()) {
-                   if(val.getId().equals(valReq.getId())) {
-                       val.setValue(valReq.getValue());
-                       break;
-                   }
-               }
+        if (newValues != null) {
+            newValues.forEach(valReq -> {
+                for (OptionValueEntity val : entity.getValues()) {
+                    if (val.getId().equals(valReq.getId())) {
+                        val.setValue(valReq.getValue());
+                        break;
+                    }
+                }
             });
         }
     }
 
-
     @Transactional
     public AdminOptionValueResponse addValueToAttribute(Long attributeId,
-                                                        AdminOptionValueRequest request,
-                                                        AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
+                                                         AdminOptionValueRequest request,
+                                                         AccountEntity currentUser) {
         OptionAttributeEntity attribute = optionAttributeRepository.findById(attributeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + attributeId));
 
@@ -160,11 +139,8 @@ public class AdminOptionAttributeService {
         return adminOptionAttributeMapper.toValueResponse(optionValueRepository.save(newValue));
     }
 
-
     @Transactional
     public void deleteValue(Long attributeId, Long valueId, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
         OptionAttributeEntity attribute = optionAttributeRepository.findById(attributeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + attributeId));
 
@@ -178,19 +154,16 @@ public class AdminOptionAttributeService {
         optionValueRepository.delete(value);
     }
 
-
     @Transactional
     public void deleteOptionAttribute(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         OptionAttributeEntity entity = optionAttributeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + id));
         if (!optionAttributeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Không tìm thấy thuộc tính với id: " + id);
         }
-        if (!canDelete(entity)){
+        if (!canDelete(entity)) {
             optionAttributeRepository.deleteById(id);
-        }
-        else {
+        } else {
             throw new RuntimeException("Không thể xóa thuộc tính này vì nó đang được sử dụng bởi các sản phẩm");
         }
     }
