@@ -45,6 +45,14 @@ public class AccountEntity {
 
     private String refreshToken;
 
+    /**
+     * Temporary non-persistent builder compatibility for the existing seed data.
+     * Authorization must use accountRoles only.
+     */
+    @Transient
+    @Deprecated
+    private RoleEntity role;
+
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AccountRoleEntity> accountRoles = new ArrayList<>();
