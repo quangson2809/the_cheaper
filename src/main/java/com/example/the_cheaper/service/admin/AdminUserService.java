@@ -63,7 +63,6 @@ public class AdminUserService {
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role(adminRole)
                 .status(1)
                 .build();
 
@@ -81,8 +80,7 @@ public class AdminUserService {
                 .findFirst()
                 .orElse(null);
 
-        RoleEntity role = accountRole != null ? accountRole.getRole() : account.getRole();
-        return toRoleResponse(account, role);
+        return toRoleResponse(account, accountRole != null ? accountRole.getRole() : null);
     }
 
     @Transactional
@@ -97,10 +95,6 @@ public class AdminUserService {
                 .account(account)
                 .role(role)
                 .build());
-
-        // Transitional sync for the legacy single-role account API.
-        account.assignPrimaryRole(role);
-        accountRepository.save(account);
 
         return toRoleResponse(account, role);
     }
