@@ -45,12 +45,6 @@ public class AccountEntity {
 
     private String refreshToken;
 
-    /** Transitional compatibility field. Runtime authorization uses account_roles. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    @Deprecated
-    private RoleEntity role;
-
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AccountRoleEntity> accountRoles = new ArrayList<>();
@@ -85,10 +79,6 @@ public class AccountEntity {
 
     public void changePasswordHash(String newPasswordHash) {
         this.passwordHash = newPasswordHash;
-    }
-
-    public void assignPrimaryRole(RoleEntity role) {
-        this.role = role;
     }
 
     public void addRole(RoleEntity role) {
