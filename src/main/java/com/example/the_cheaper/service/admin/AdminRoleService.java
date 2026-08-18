@@ -23,11 +23,9 @@ public class AdminRoleService {
     private final RoleRepository roleRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final AdminRoleMapper roleMapper;
-    private final AdminProtectedAccess adminProtectedAccess;
 
     @Transactional(readOnly = true)
     public List<AdminRoleResponse> listRoles(AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         return roleRepository.findAll().stream()
                 .map(roleMapper::toResponse)
                 .toList();
@@ -35,7 +33,6 @@ public class AdminRoleService {
 
     @Transactional(readOnly = true)
     public AdminRoleResponse getRole(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         return roleRepository.findById(id)
                 .map(roleMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -43,10 +40,7 @@ public class AdminRoleService {
     }
 
     @Transactional
-    public AdminRoleResponse createRole(
-            AdminRoleCreateRequest request,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public AdminRoleResponse createRole(AdminRoleCreateRequest request, AccountEntity currentUser) {
         validateUniqueName(request.getName(), null);
 
         RoleEntity entity = roleMapper.toEntity(request);
@@ -54,12 +48,9 @@ public class AdminRoleService {
     }
 
     @Transactional
-    public AdminRoleResponse updateRole(
-            Long id,
-            AdminRoleUpdateRequest request,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
+    public AdminRoleResponse updateRole(Long id,
+                                        AdminRoleUpdateRequest request,
+                                        AccountEntity currentUser) {
         RoleEntity entity = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy role với id: " + id));
@@ -72,8 +63,6 @@ public class AdminRoleService {
 
     @Transactional
     public void deleteRole(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
         if (!roleRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     "Không tìm thấy role với id: " + id);
