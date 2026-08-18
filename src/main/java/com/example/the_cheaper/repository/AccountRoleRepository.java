@@ -17,6 +17,8 @@ public interface AccountRoleRepository extends JpaRepository<AccountRoleEntity, 
 
     boolean existsByAccountIdAndRoleId(Long accountId, Long roleId);
 
+    boolean existsByRoleId(Long roleId);
+
     @Modifying
     @Query("delete from AccountRoleEntity ar where ar.account.id = :accountId")
     void deleteAllByAccountId(@Param("accountId") Long accountId);
