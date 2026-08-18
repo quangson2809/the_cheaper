@@ -48,7 +48,6 @@ public class AuthService {
                 .name(request.getName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role(userRole)
                 .cart(cart)
                 .status(1)
                 .rewardPoint(0)
@@ -98,9 +97,10 @@ public class AuthService {
         account.setRefreshToken(refreshToken);
         accountRepository.save(account);
 
-        String roleName = account.getRole() != null
-                ? account.getRole().getName()
-                : null;
+        String roleName = account.getAccountRoles().stream()
+                .map(accountRole -> accountRole.getRole().getName())
+                .findFirst()
+                .orElse(null);
 
         return AuthResponse.builder()
                 .id(account.getId())
