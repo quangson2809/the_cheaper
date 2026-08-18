@@ -1,16 +1,8 @@
 package com.example.the_cheaper.service.product;
 
-import com.example.the_cheaper.dto.request.admin.AdminCategoryRequest;
-import com.example.the_cheaper.dto.response.admin.AdminCategoryResponse;
 import com.example.the_cheaper.dto.response.user.UserCategoryResponse;
-import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.entity.CategoryEntity;
-import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
-import com.example.the_cheaper.exception.ResourceNotFoundException;
-import com.example.the_cheaper.mapper.admin.AdminCategoryMapper;
 import com.example.the_cheaper.mapper.user.UserCategoryMapper;
 import com.example.the_cheaper.repository.CategoryRepository;
-import com.example.the_cheaper.service.admin.AdminProtectedAccess;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +23,4 @@ public class CategoryService {
                 .map(userCategoryMapper::toResponse)
                 .collect(Collectors.toList());
     }
-
 }
-
-
