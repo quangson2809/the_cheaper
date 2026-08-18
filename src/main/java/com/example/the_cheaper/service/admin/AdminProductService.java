@@ -25,7 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AdminProductService {
 
-    private final AdminProtectedAccess adminProtectedAccess;
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
@@ -39,28 +38,19 @@ public class AdminProductService {
 
     @Transactional
     public AdminProductResponse createProduct(AdminProductCreateRequest request, List<MultipartFile> files, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-        // 1. Map basic data to entity
         ProductEntity product = adminProductMapper.toEntity(request);
 
-        // 2. Set relationships
         setBasicCreateInfo(product, request);
 
-        // 3. Handle Variants
         if (request.getVariants() != null && !request.getVariants().isEmpty()) {
             createVariant(product, request.getVariants());
         }
 
-        // 4. Handle Images (Multipart Files)
         fileStorageService.init();
         createImage(product, files);
 
-        // 5. Save everything (Cascade will handle variants and images if configured,
-        // but let's be explicit if needed. In our entities, we might need
-        // CascadeType.ALL)
         ProductEntity savedProduct = productRepository.save(product);
 
-        // Explicitly save variants and images if cascade is not set
         if (product.getVariants() != null) {
             productVariantRepository.saveAll(product.getVariants());
         }
@@ -101,7 +91,6 @@ public class AdminProductService {
     @Transactional(readOnly = true)
     public Page<AdminProductOverviewResponse> listProducts(AccountEntity currentUser,
                                                            AdminProductFilterRequest request) {
-        adminProtectedAccess.adminAccess(currentUser);
         return productRepository.findProductsByAdminFilter(
                             request.getBrandId(),
                             request.getCategoryId(),
@@ -115,20 +104,17 @@ public class AdminProductService {
 
     @Transactional
     public Page<AdminProductOverviewResponse> searchProductsByName(String name, AccountEntity currentUser, int page, int limit) {
-        adminProtectedAccess.adminAccess(currentUser);
         return productRepository.findActiveProductsByNameContainingIgnoreCase(name, PageRequest.of(page - 1, limit))
                 .map(adminProductMapper::toOverviewResponse);
     }
 
     @Transactional(readOnly = true)
     public Page<AdminProductOverviewResponse> listProductsOfFilter(AdminProductFilterRequest request, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         throw new NotImplementedException("chưa triển khai lấy sản phẩm theo danh mục");
     }
 
     @Transactional(readOnly = true)
     public AdminProductResponse getProductDetail(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         ProductEntity product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return adminProductMapper.toDetailResponse(product);
@@ -136,28 +122,27 @@ public class AdminProductService {
 
     @Transactional
     public AdminProductResponse updateProduct(Long id, AdminProductUpdateRequest request, List<MultipartFile> files, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-        // Implement update logic here
         ProductEntity product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        setBasicUpdateInfo(product,request);
+        setBasicUpdateInfo(product, request);
 
-        if(request.getVariantUpdates() != null && !request.getVariantUpdates().isEmpty()) {
+        if (request.getVariantUpdates() != null && !request.getVariantUpdates().isEmpty()) {
             updateVariant(product, request.getVariantUpdates());
         }
 
-        if(request.getVariantCreates() != null && !request.getVariantCreates().isEmpty()) {
+        if (request.getVariantCreates() != null && !request.getVariantCreates().isEmpty()) {
             createVariant(product, request.getVariantCreates());
         }
 
-        if(request.getVariantDeletes() != null && !request.getVariantDeletes().isEmpty()) {
-            deleteVariant(product, request.getVariantDeletes()); }
+        if (request.getVariantDeletes() != null && !request.getVariantDeletes().isEmpty()) {
+            deleteVariant(product, request.getVariantDeletes());
+        }
 
         fileStorageService.init();
         createImage(product, files);
 
-        if(request.getImageDeletes() != null && !request.getImageDeletes().isEmpty()) {
+        if (request.getImageDeletes() != null && !request.getImageDeletes().isEmpty()) {
             deleteImage(product, request.getImageDeletes());
         }
 
@@ -165,55 +150,55 @@ public class AdminProductService {
     }
 
     public void setBasicUpdateInfo(ProductEntity product, AdminProductUpdateRequest request) {
-        if(request.getName() != null) {
+        if (request.getName() != null) {
             product.setName(request.getName());
         }
-        if(request.getSalePrice() != null) {
+        if (request.getSalePrice() != null) {
             product.setSalePrice(request.getSalePrice());
         }
-        if(request.getComparePrice() != null) {
+        if (request.getComparePrice() != null) {
             product.setComparePrice(request.getComparePrice());
         }
-        if(request.getDescription() != null) {
+        if (request.getDescription() != null) {
             product.setDescription(request.getDescription());
         }
-        if(request.getStatus() != null && request.getStatus() != product.getStatus()) {
+        if (request.getStatus() != null && request.getStatus() != product.getStatus()) {
             product.setStatus(request.getStatus());
         }
-        if(!product.getBrand().getId().equals(request.getBrandId())) {
+        if (!product.getBrand().getId().equals(request.getBrandId())) {
             product.setBrand(brandRepository.findById(request.getBrandId())
                     .orElseThrow(() -> new ResourceNotFoundException("Brand not found")));
         }
-        if(!product.getCategory().getId().equals(request.getCategoryId())) {
+        if (!product.getCategory().getId().equals(request.getCategoryId())) {
             product.setCategory(categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found")));
         }
-        if(!product.getMaterial().getId().equals(request.getMaterialId())) {
+        if (!product.getMaterial().getId().equals(request.getMaterialId())) {
             product.setMaterial(materialRepository.findById(request.getMaterialId())
                     .orElseThrow(() -> new ResourceNotFoundException("Material not found")));
         }
-
     }
+
     public void updateVariant(ProductEntity product, List<AdminVariantUpdateRequest> variantRequests) {
-            for(AdminVariantUpdateRequest variantRequest : variantRequests) {
-                ProductVariantEntity variant = productVariantRepository.findById(variantRequest.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Variant not found"));
-                if(variantRequest.getOverrideSalePrice() != null) {
-                    variant.setOverridePrice(variantRequest.getOverrideSalePrice());
-                }
-                if(variantRequest.getStock() != null){
-                    variant.setStock(variantRequest.getStock());
-                }
-                if(variantRequest.getOptionValueAdds() != null && !variantRequest.getOptionValueAdds().isEmpty()) {
-                    List<OptionValueEntity> optionValues = optionValueRepository.findAllById(variantRequest.getOptionValueSubs());
-                    variant.getOptionValues().addAll(optionValues);
-                }
-                if(variantRequest.getOptionValueSubs() != null && !variantRequest.getOptionValueSubs().isEmpty()) {
-                    List<OptionValueEntity> optionValues = optionValueRepository.findAllById(variantRequest.getOptionValueSubs());
-                    variant.getOptionValues().removeAll(optionValues);
-                }
-                productVariantRepository.save(variant);
+        for (AdminVariantUpdateRequest variantRequest : variantRequests) {
+            ProductVariantEntity variant = productVariantRepository.findById(variantRequest.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Variant not found"));
+            if (variantRequest.getOverrideSalePrice() != null) {
+                variant.setOverridePrice(variantRequest.getOverrideSalePrice());
             }
+            if (variantRequest.getStock() != null) {
+                variant.setStock(variantRequest.getStock());
+            }
+            if (variantRequest.getOptionValueAdds() != null && !variantRequest.getOptionValueAdds().isEmpty()) {
+                List<OptionValueEntity> optionValues = optionValueRepository.findAllById(variantRequest.getOptionValueSubs());
+                variant.getOptionValues().addAll(optionValues);
+            }
+            if (variantRequest.getOptionValueSubs() != null && !variantRequest.getOptionValueSubs().isEmpty()) {
+                List<OptionValueEntity> optionValues = optionValueRepository.findAllById(variantRequest.getOptionValueSubs());
+                variant.getOptionValues().removeAll(optionValues);
+            }
+            productVariantRepository.save(variant);
+        }
     }
 
     public void createVariant(ProductEntity product, List<AdminVariantCreateRequest> variantCreateRequests) {
@@ -224,7 +209,6 @@ public class AdminProductService {
                 .filter(vReq -> vReq != null && vReq.getOptionValueIds() != null && !vReq.getOptionValueIds().isEmpty())
                 .map(vReq -> {
                     List<OptionValueEntity> optionValues = optionValueRepository.findAllById(vReq.getOptionValueIds());
-                    //Gen sku
                     String sku = createSku(product.getCategory().getId(), product.getBrand().getId(), product.getMaterial().getId());
 
                     ProductVariantEntity variant = adminProductMapper.toEntity(sku, vReq, optionValues);
@@ -236,8 +220,8 @@ public class AdminProductService {
         productVariantRepository.saveAll(newVariants);
     }
 
-    public void deleteVariant(ProductEntity product,List<Long> variantIdDeletes) {
-        if(variantIdDeletes != null && !variantIdDeletes.isEmpty()) {
+    public void deleteVariant(ProductEntity product, List<Long> variantIdDeletes) {
+        if (variantIdDeletes != null && !variantIdDeletes.isEmpty()) {
             List<ProductVariantEntity> variantsToDelete = product.getVariants().stream()
                     .filter(v -> variantIdDeletes.contains(v.getId()))
                     .toList();
@@ -247,7 +231,7 @@ public class AdminProductService {
         }
     }
 
-    public void createImage(ProductEntity product,List<MultipartFile> files) {
+    public void createImage(ProductEntity product, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
             return;
         }
@@ -274,15 +258,15 @@ public class AdminProductService {
         }
     }
 
-    public void deleteImage(ProductEntity product,List<Long> imageIdDeletes) {
-        if(imageIdDeletes != null && !imageIdDeletes.isEmpty()) {
+    public void deleteImage(ProductEntity product, List<Long> imageIdDeletes) {
+        if (imageIdDeletes != null && !imageIdDeletes.isEmpty()) {
             List<ProductImageEntity> imagesToDelete = product.getImages().stream()
                     .filter(i -> imageIdDeletes.contains(i.getId()))
                     .toList();
 
             product.getImages().removeAll(imagesToDelete);
             productImageRepository.deleteAll(imagesToDelete);
-            for(ProductImageEntity image : imagesToDelete) {
+            for (ProductImageEntity image : imagesToDelete) {
                 fileStorageService.delete(image.getName());
             }
         }
@@ -290,7 +274,6 @@ public class AdminProductService {
 
     @Transactional
     public void deleteProduct(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         if (!productRepository.existsById(id)) {
             throw new ResourceNotFoundException("Product not found");
         }
@@ -299,7 +282,6 @@ public class AdminProductService {
 
     @Transactional
     public void updateProductStatus(Long id, int status, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         ProductEntity product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         product.setStatus(status);
