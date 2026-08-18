@@ -55,8 +55,7 @@ public class AdminUserService {
         }
 
         RoleEntity adminRole = roleRepository.findByName("ADMIN")
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Không tìm thấy role ADMIN"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role ADMIN"));
 
         AccountEntity newAdmin = AccountEntity.builder()
                 .name(request.getName())
@@ -90,7 +89,11 @@ public class AdminUserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy role với id: " + request.getRoleId()));
 
-        accountRoleRepository.deleteAllByAccountId(accountId);
+        if (accountRoleRepository.existsByAccountIdAndRoleId(accountId, role.getId())) {
+            throw new ResourceAlreadyExistsException(
+                    "Account đã được gán role '" + role.getName() + "'");
+        }
+
         accountRoleRepository.save(AccountRoleEntity.builder()
                 .account(account)
                 .role(role)
