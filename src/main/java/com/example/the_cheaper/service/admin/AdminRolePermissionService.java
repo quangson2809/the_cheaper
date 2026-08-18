@@ -28,13 +28,9 @@ public class AdminRolePermissionService {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
-    private final AdminProtectedAccess adminProtectedAccess;
 
     @Transactional(readOnly = true)
-    public List<AdminRolePermissionResponse> getPermissions(
-            Long roleId,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public List<AdminRolePermissionResponse> getPermissions(Long roleId, AccountEntity currentUser) {
         getRole(roleId);
 
         return rolePermissionRepository.findAllByRoleId(roleId).stream()
@@ -44,11 +40,9 @@ public class AdminRolePermissionService {
     }
 
     @Transactional
-    public List<AdminRolePermissionResponse> replacePermissions(
-            Long roleId,
-            UpdateRolePermissionsRequest request,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public List<AdminRolePermissionResponse> replacePermissions(Long roleId,
+                                                                 UpdateRolePermissionsRequest request,
+                                                                 AccountEntity currentUser) {
         RoleEntity role = getRole(roleId);
 
         List<Long> permissionIds = request.getPermissionIds() == null
@@ -81,11 +75,9 @@ public class AdminRolePermissionService {
     }
 
     @Transactional
-    public AdminRolePermissionResponse grantPermission(
-            Long roleId,
-            Long permissionId,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public AdminRolePermissionResponse grantPermission(Long roleId,
+                                                        Long permissionId,
+                                                        AccountEntity currentUser) {
         RoleEntity role = getRole(roleId);
         PermissionEntity permission = getPermission(permissionId);
 
@@ -103,11 +95,7 @@ public class AdminRolePermissionService {
     }
 
     @Transactional
-    public void revokePermission(
-            Long roleId,
-            Long permissionId,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public void revokePermission(Long roleId, Long permissionId, AccountEntity currentUser) {
         getRole(roleId);
         getPermission(permissionId);
 
