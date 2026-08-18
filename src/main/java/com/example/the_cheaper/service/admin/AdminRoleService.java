@@ -8,6 +8,7 @@ import com.example.the_cheaper.entity.RoleEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminRoleMapper;
+import com.example.the_cheaper.repository.AccountRoleRepository;
 import com.example.the_cheaper.repository.RolePermissionRepository;
 import com.example.the_cheaper.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class AdminRoleService {
 
     private final RoleRepository roleRepository;
+    private final AccountRoleRepository accountRoleRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final AdminRoleMapper roleMapper;
 
@@ -68,7 +70,7 @@ public class AdminRoleService {
                     "Không tìm thấy role với id: " + id);
         }
 
-        if (roleRepository.existsAssignedToAccount(id)) {
+        if (accountRoleRepository.existsByRoleId(id)) {
             throw new ResourceAlreadyExistsException(
                     "Không thể xóa role vì role đang được gán cho account");
         }
