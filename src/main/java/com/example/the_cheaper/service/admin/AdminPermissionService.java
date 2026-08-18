@@ -24,13 +24,9 @@ public class AdminPermissionService {
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
     private final AdminPermissionMapper permissionMapper;
-    private final AdminProtectedAccess adminProtectedAccess;
 
     @Transactional
-    public AdminPermissionResponse createPermission(
-            AdminPermissionCreateRequest request,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public AdminPermissionResponse createPermission(AdminPermissionCreateRequest request, AccountEntity currentUser) {
         validateUnique(request.getName(), request.getCode(), null);
 
         PermissionEntity entity = permissionMapper.toEntity(request);
@@ -39,7 +35,6 @@ public class AdminPermissionService {
 
     @Transactional(readOnly = true)
     public AdminPermissionResponse getPermission(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         return permissionRepository.findById(id)
                 .map(permissionMapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -47,23 +42,16 @@ public class AdminPermissionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminPermissionResponse> listPermissions(
-            int page,
-            int size,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
+    public Page<AdminPermissionResponse> listPermissions(int page, int size, AccountEntity currentUser) {
         Pageable pageable = PageRequest.of(normalizePage(page), normalizeSize(size));
         return permissionRepository.findAllByOrderByIdDesc(pageable)
                 .map(permissionMapper::toResponse);
     }
 
     @Transactional
-    public AdminPermissionResponse updatePermission(
-            Long id,
-            AdminPermissionUpdateRequest request,
-            AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
+    public AdminPermissionResponse updatePermission(Long id,
+                                                     AdminPermissionUpdateRequest request,
+                                                     AccountEntity currentUser) {
         PermissionEntity entity = permissionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy permission với id: " + id));
@@ -76,8 +64,6 @@ public class AdminPermissionService {
 
     @Transactional
     public void deletePermission(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
-
         if (!permissionRepository.existsById(id)) {
             throw new ResourceNotFoundException(
                     "Không tìm thấy permission với id: " + id);
