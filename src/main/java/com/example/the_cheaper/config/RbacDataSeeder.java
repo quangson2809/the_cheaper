@@ -51,11 +51,18 @@ public class RbacDataSeeder implements CommandLineRunner {
     }
 
     private RoleEntity findOrCreateRole(String name, String description) {
-        return roleRepository.findByName(name)
+        RoleEntity role = roleRepository.findByName(name)
                 .orElseGet(() -> roleRepository.save(RoleEntity.builder()
                         .name(name)
                         .description(description)
                         .build()));
+
+        if (role.getDescription() == null || role.getDescription().isBlank()) {
+            role.setDescription(description);
+            role = roleRepository.save(role);
+        }
+
+        return role;
     }
 
     private Map<String, PermissionEntity> seedPermissions() {
@@ -103,7 +110,8 @@ public class RbacDataSeeder implements CommandLineRunner {
     }
 
     private void seedAccountRoles(RoleEntity userRole, RoleEntity adminRole) {
-        accountRepository.findByEmail("admin@gmail.com").ifPresent(account -> ensureAccountRole(account, adminRole));
+        accountRepository.findByEmail("admin@gmail.com")
+                .ifPresent(account -> ensureAccountRole(account, adminRole));
 
         accountRepository.findAll().stream()
                 .filter(account -> !"admin@gmail.com".equalsIgnoreCase(account.getEmail()))
