@@ -7,7 +7,6 @@ import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.CartEntity;
 import com.example.the_cheaper.entity.RoleEntity;
 import com.example.the_cheaper.exception.InvalidInputException;
-import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.repository.AccountRepository;
@@ -26,12 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
-
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -40,20 +39,21 @@ public class AuthService {
         }
 
         RoleEntity userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new ResourceNotFoundException("Role mặc định không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Role mặc định không tồn tại"));
 
-        CartEntity cart =new CartEntity();
+        CartEntity cart = new CartEntity();
 
         AccountEntity account = AccountEntity.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
-                .role(userRole)
                 .cart(cart)
                 .status(1)
                 .rewardPoint(0)
                 .build();
 
+        account.addRole(userRole);
         cart.setAccount(account);
 
         AccountEntity savedAccount = accountRepository.save(account);
@@ -61,8 +61,8 @@ public class AuthService {
         String accessToken = jwtProvider.generateAccessToken(savedAccount);
         String refreshToken = jwtProvider.generateRefreshToken(savedAccount);
 
-        account.setRefreshToken(refreshToken);
-        accountRepository.save(account);
+        savedAccount.setRefreshToken(refreshToken);
+        accountRepository.save(savedAccount);
 
         return AuthResponse.builder()
                 .id(savedAccount.getId())
@@ -74,18 +74,22 @@ public class AuthService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword())
             );
         } catch (AuthenticationException e) {
-            throw new InvalidInputException("Thông tin đăng nhập không chính xác hoặc tài khoản bị vô hiệu hóa");
+            throw new InvalidInputException(
+                    "Thông tin đăng nhập không chính xác hoặc tài khoản bị vô hiệu hóa");
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails userDetails =
+                (CustomUserDetails) authentication.getPrincipal();
         AccountEntity account = userDetails.getAccount();
 
         String accessToken = jwtProvider.generateAccessToken(account);
@@ -93,7 +97,10 @@ public class AuthService {
         account.setRefreshToken(refreshToken);
         accountRepository.save(account);
 
-        String roleName = account.getRole() != null ? account.getRole().getName() : null;
+        String roleName = account.getAccountRoles().stream()
+                .map(accountRole -> accountRole.getRole().getName())
+                .findFirst()
+                .orElse(null);
 
         return AuthResponse.builder()
                 .id(account.getId())
@@ -108,7 +115,8 @@ public class AuthService {
     @Transactional
     public void logout(Long accountId) {
         AccountEntity account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Tài khoản không tồn tại"));
 
         account.setRefreshToken(null);
         accountRepository.save(account);

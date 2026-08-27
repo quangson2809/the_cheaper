@@ -2,9 +2,8 @@ package com.example.the_cheaper.service.admin;
 
 import com.example.the_cheaper.dto.request.admin.AdminCreatePaymentMethodRequest;
 import com.example.the_cheaper.dto.request.admin.AdminUpdatePaymentMethodRequest;
-import com.example.the_cheaper.dto.response.admin.AdminMaterialResponse;
 import com.example.the_cheaper.dto.response.common.PaymentMethodResponse;
-import com.example.the_cheaper.entity.MaterialEntity;
+import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.PaymentMethodEntity;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.the_cheaper.entity.AccountEntity;
 
 import java.util.List;
 
@@ -25,32 +23,25 @@ public class AdminPaymentMethodService {
 
     private final PaymentMethodRepository paymentMethodRepository;
     private final AdminPaymentMethodMapper adminPaymentMethodMapper;
-    private final AdminProtectedAccess adminProtectedAccess;
-
 
     @Transactional(readOnly = true)
     public List<PaymentMethodResponse> getAllPaymentMethods(AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         return paymentMethodRepository.findAll()
                 .stream()
                 .map(adminPaymentMethodMapper::toResponse)
                 .toList();
     }
 
-
     @Transactional(readOnly = true)
     public PaymentMethodResponse getPaymentMethod(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         PaymentMethodEntity entity = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy phương thức thanh toán với id: " + id));
         return adminPaymentMethodMapper.toResponse(entity);
     }
 
-
     @Transactional
     public PaymentMethodResponse createPaymentMethod(AdminCreatePaymentMethodRequest request, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         String code = request.getCode().toUpperCase().trim();
 
         if (paymentMethodRepository.existsByCode(code)) {
@@ -65,32 +56,27 @@ public class AdminPaymentMethodService {
         return adminPaymentMethodMapper.toResponse(paymentMethodRepository.save(entity));
     }
 
-
     @Transactional
     public PaymentMethodResponse updatePaymentMethod(Long id, AdminUpdatePaymentMethodRequest request, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         PaymentMethodEntity entity = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy phương thức thanh toán với id: " + id));
 
-        if(request.getName() != null && !request.getName().isEmpty()) {
+        if (request.getName() != null && !request.getName().isEmpty()) {
             entity.setName(request.getName());
         }
-        if(request.getCode() != null && !request.getCode().isEmpty()) {
+        if (request.getCode() != null && !request.getCode().isEmpty()) {
             entity.setCode(request.getCode());
         }
-        if(request.getStatus() != null ) {
+        if (request.getStatus() != null) {
             entity.setStatus(request.getStatus());
         }
 
         return adminPaymentMethodMapper.toResponse(paymentMethodRepository.save(entity));
     }
 
-    // ─── Xóa mềm (soft delete: active = false) ───────────────────────────────────
-
     @Transactional
     public void deletePaymentMethod(Long id, AccountEntity currentUser) {
-        adminProtectedAccess.adminAccess(currentUser);
         PaymentMethodEntity entity = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy phương thức thanh toán với id: " + id));

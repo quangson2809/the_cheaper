@@ -8,8 +8,8 @@ import lombok.*;
         name = "role_permissions",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "unique_permission_name",
-                        columnNames = {"role_id","permission_id"}
+                        name = "uk_role_permission",
+                        columnNames = {"role_id", "permission_id"}
                 )
         }
 )
@@ -23,17 +23,11 @@ public class RolePermissionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "role_id",
-            nullable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "permission_id",
-            nullable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "permission_id", nullable = false)
     private PermissionEntity permission;
 }
