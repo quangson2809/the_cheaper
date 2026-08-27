@@ -96,16 +96,4 @@ public class AccountEntity {
     public void clearRoles() {
         accountRoles.clear();
     }
-
-    /**
-     * Transitional builder compatibility for the current seeder.
-     * The legacy Account.role field is no longer persisted or exposed.
-     * Account roles are assigned explicitly through accountRoles after account creation.
-     */
-    public static class AccountEntityBuilder {
-        @Deprecated
-        public AccountEntityBuilder role(RoleEntity ignored) {
-            return this;
-        }
-    }
 }

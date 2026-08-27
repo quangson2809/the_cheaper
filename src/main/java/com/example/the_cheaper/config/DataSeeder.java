@@ -67,25 +67,25 @@ public class DataSeeder implements CommandLineRunner {
         String hashedPassword = passwordEncoder.encode("123456");
         List<AccountEntity> accounts = accountRepository.saveAll(List.of(
                 AccountEntity.builder().name("Nguyễn Văn An").status(1).email("an.nguyen@gmail.com")
-                        .phone("0901234567").passwordHash(hashedPassword).role(roleUser).rewardPoint(150).build(),
+                        .phone("0901234567").passwordHash(hashedPassword).rewardPoint(150).build(),
                 AccountEntity.builder().name("Trần Thị Bình").status(1).email("binh.tran@gmail.com")
-                        .phone("0912345678").passwordHash(hashedPassword).role(roleUser).rewardPoint(320).build(),
+                        .phone("0912345678").passwordHash(hashedPassword).rewardPoint(320).build(),
                 AccountEntity.builder().name("Lê Văn Cường").status(1).email("cuong.le@gmail.com")
-                        .phone("0923456789").passwordHash(hashedPassword).role(roleUser).rewardPoint(80).build(),
+                        .phone("0923456789").passwordHash(hashedPassword).rewardPoint(80).build(),
                 AccountEntity.builder().name("Phạm Thị Dung").status(1).email("dung.pham@gmail.com")
-                        .phone("0934567890").passwordHash(hashedPassword).role(roleUser).rewardPoint(500).build(),
+                        .phone("0934567890").passwordHash(hashedPassword).rewardPoint(500).build(),
                 AccountEntity.builder().name("Hoàng Văn Em").status(1).email("em.hoang@gmail.com")
-                        .phone("0945678901").passwordHash(hashedPassword).role(roleUser).rewardPoint(210).build(),
+                        .phone("0945678901").passwordHash(hashedPassword).rewardPoint(210).build(),
                 AccountEntity.builder().name("Vũ Thị Phương").status(1).email("phuong.vu@gmail.com")
-                        .phone("0956789012").passwordHash(hashedPassword).role(roleUser).rewardPoint(0).build(),
+                        .phone("0956789012").passwordHash(hashedPassword).rewardPoint(0).build(),
                 AccountEntity.builder().name("Đặng Văn Giang").status(1).email("giang.dang@gmail.com")
-                        .phone("0967890123").passwordHash(hashedPassword).role(roleUser).rewardPoint(95).build(),
+                        .phone("0967890123").passwordHash(hashedPassword).rewardPoint(95).build(),
                 AccountEntity.builder().name("Bùi Thị Hoa").status(1).email("hoa.bui@gmail.com")
-                        .phone("0978901234").passwordHash(hashedPassword).role(roleUser).rewardPoint(440).build(),
+                        .phone("0978901234").passwordHash(hashedPassword).rewardPoint(440).build(),
                 AccountEntity.builder().name("Ngô Văn Inh").status(1).email("inh.ngo@gmail.com")
-                        .phone("0989012345").passwordHash(hashedPassword).role(roleUser).rewardPoint(60).build(),
+                        .phone("0989012345").passwordHash(hashedPassword).rewardPoint(60).build(),
                 AccountEntity.builder().name("Admin Hệ Thống").status(1).email("admin@gmail.com")
-                        .phone("0990000000").passwordHash(hashedPassword).role(roleAdmin).rewardPoint(0).build()
+                        .phone("0990000000").passwordHash(hashedPassword).rewardPoint(0).build()
         ));
 
         seedAccountRoles(roleUser, roleAdmin);
