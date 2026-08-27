@@ -45,14 +45,6 @@ public class AccountEntity {
 
     private String refreshToken;
 
-    /**
-     * Temporary non-persistent builder compatibility for the existing seed data.
-     * Authorization must use accountRoles only.
-     */
-    @Transient
-    @Deprecated
-    private RoleEntity role;
-
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<AccountRoleEntity> accountRoles = new ArrayList<>();
@@ -103,5 +95,17 @@ public class AccountEntity {
 
     public void clearRoles() {
         accountRoles.clear();
+    }
+
+    /**
+     * Transitional builder compatibility for the current seeder.
+     * The legacy Account.role field is no longer persisted or exposed.
+     * Account roles are assigned explicitly through accountRoles after account creation.
+     */
+    public static class AccountEntityBuilder {
+        @Deprecated
+        public AccountEntityBuilder role(RoleEntity ignored) {
+            return this;
+        }
     }
 }
