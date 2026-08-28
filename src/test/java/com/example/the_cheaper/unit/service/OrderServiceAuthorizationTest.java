@@ -1,7 +1,8 @@
 package com.example.the_cheaper.unit.service;
 
-import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.OrderEntity;
+import com.example.the_cheaper.entity.OrderStatus;
+import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.user.UserOrderMapper;
 import com.example.the_cheaper.repository.AccountRepository;
 import com.example.the_cheaper.repository.CartRepository;
@@ -74,7 +75,7 @@ class OrderServiceAuthorizationTest {
 
         when(orderRepository.findByIdAndAccountId(orderId, accountId)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> orderService.getOrderDetail(orderId, accountId));
+        assertThrows(ResourceNotFoundException.class, () -> orderService.getOrderDetail(orderId, accountId));
 
         verify(orderRepository).findByIdAndAccountId(orderId, accountId);
         verifyNoInteractions(orderMapper);
@@ -87,7 +88,7 @@ class OrderServiceAuthorizationTest {
         OrderEntity order = OrderEntity.builder()
                 .id(orderId)
                 .paymentMethodCode("COD")
-                .status(com.example.the_cheaper.entity.OrderStatus.PENDING)
+                .status(OrderStatus.PENDING)
                 .build();
 
         when(orderRepository.findByIdAndAccountId(orderId, accountId)).thenReturn(Optional.of(order));
@@ -95,7 +96,7 @@ class OrderServiceAuthorizationTest {
 
         orderService.cancelOrder(orderId, accountId);
 
-        assertEquals(com.example.the_cheaper.entity.OrderStatus.CANCELED, order.getStatus());
+        assertEquals(OrderStatus.CANCELED, order.getStatus());
         verify(orderRepository).findByIdAndAccountId(orderId, accountId);
         verify(orderRepository).save(order);
     }
