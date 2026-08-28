@@ -5,7 +5,7 @@ import com.example.the_cheaper.dto.request.admin.AdminOrderFilterRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOrderStatusUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
-import com.example.the_cheaper.exception.NotImplementedException;
+import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.service.admin.AdminOrderService;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +31,8 @@ public class AdminOrderController {
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<Page<AdminOrderOverviewResponse>>> getListOrders(
             AdminOrderFilterRequest request) {
-        try {
-            Page<AdminOrderOverviewResponse> response = adminOrderService.getListOrders(request);
-            return ResponseEntity.ok(ApiResponse.success(response, "Lấy danh sách đơn hàng thành công"));
-        } catch (NotImplementedException e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                    .body(ApiResponse.error(HttpStatus.NOT_IMPLEMENTED.value(), e.getMessage(), "/api/admin/orders"));
-        }
+        Page<AdminOrderOverviewResponse> response = adminOrderService.getListOrders(request);
+        return ResponseEntity.ok(ApiResponse.success(response, "Lấy danh sách đơn hàng thành công"));
     }
 
     @GetMapping("/{order_id}")
@@ -62,9 +57,13 @@ public class AdminOrderController {
         try {
             AdminOrderOverviewResponse response = adminOrderService.updateOrderStatus(orderId, request);
             return ResponseEntity.ok(ApiResponse.success(response, "Cập nhật trạng thái đơn hàng thành công"));
-        } catch (ResourceNotFoundException | NotImplementedException e) {
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(),
+                            "/api/admin/orders/" + orderId + "/status"));
+        } catch (InvalidInputException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage(),
                             "/api/admin/orders/" + orderId + "/status"));
         }
     }
