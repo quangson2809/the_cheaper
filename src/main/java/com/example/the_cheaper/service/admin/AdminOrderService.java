@@ -31,8 +31,8 @@ public class AdminOrderService {
 
     @Transactional
     public Page<AdminOrderOverviewResponse> searchOrders(Long id, int page, int limit) {
-        Page<OrderEntity> orderEntities = adminOrderRepository.findOrderByIdContainingIgnoreCase(id,
-                PageRequest.of(page - 1, limit));
+        Page<OrderEntity> orderEntities = adminOrderRepository.findOrdersById(
+                id, PageRequest.of(page - 1, limit));
         return orderEntities.map(adminOrderMapper::toOverviewResponse);
     }
 
