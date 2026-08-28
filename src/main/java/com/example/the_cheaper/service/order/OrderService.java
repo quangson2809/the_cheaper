@@ -1,11 +1,17 @@
 package com.example.the_cheaper.service.order;
 
 import com.example.the_cheaper.dto.request.user.UserCreateOrderRequest;
+import com.example.the_cheaper.dto.response.user.UserOrderResponse;
 import com.example.the_cheaper.entity.*;
+import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.user.UserOrderMapper;
-import com.example.the_cheaper.repository.*;
+import com.example.the_cheaper.repository.AccountRepository;
+import com.example.the_cheaper.repository.CartRepository;
+import com.example.the_cheaper.repository.OrderRepository;
+import com.example.the_cheaper.repository.PaymentMethodRepository;
+import com.example.the_cheaper.repository.ProductVariantRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,7 +29,6 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final UserOrderMapper orderMapper;
     private final ProductVariantRepository productVariantRepository;
-    private final AddressRepository addressRepository;
     private final PaymentMethodRepository paymentMethodRepository;
 
     public OrderService(
@@ -31,34 +36,29 @@ public class OrderService {
             CartRepository cartRepository,
             UserOrderMapper orderMapper,
             ProductVariantRepository productVariantRepository,
-            AddressRepository addressRepository,
             PaymentMethodRepository paymentMethodRepository,
             AccountRepository accountRepository) {
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.orderMapper = orderMapper;
         this.productVariantRepository = productVariantRepository;
-        this.addressRepository = addressRepository;
         this.paymentMethodRepository = paymentMethodRepository;
         this.accountRepository = accountRepository;
     }
 
-    // ─── Mua hàng (Thanh toán) ── POST /orders ───────────────────────────────────
-
     @Transactional
     public UserOrderResponse createOrder(Long accountId, UserCreateOrderRequest request) {
-        // TODO: validate address belongs to user
         CartEntity cart = cartRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new NotImplementedException("Giỏ hàng của người dùng không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Giỏ hàng của người dùng không tồn tại"));
 
         String paymentCode = paymentMethodRepository.findById(request.getPaymentMethodId())
-                .orElseThrow(() -> new RuntimeException("phương thức thanh toán đang bảo trì")).getCode();
+                .orElseThrow(() -> new ResourceNotFoundException("Phương thức thanh toán không tồn tại"))
+                .getCode();
 
         AccountEntity account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new NotImplementedException("Tài khoản không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tài khoản không tồn tại"));
 
         OrderEntity order = new OrderEntity();
-
         List<OrderItemEntity> orderItems = toOrderItemEntities(cart.getItems(), order);
 
         order.setItems(orderItems);
@@ -78,16 +78,15 @@ public class OrderService {
     public OrderItemEntity toOrderItemEntity(CartItemEntity cartItem, OrderEntity order) {
         OrderItemEntity orderItem = orderMapper.toOrderItemEntity(cartItem);
         ProductVariantEntity variant = productVariantRepository.findById(cartItem.getVariant().getId())
-                .orElseThrow(() -> new NotImplementedException("Phiên bản sản phẩm không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Phiên bản sản phẩm không tồn tại"));
 
         int orderedQty = cartItem.getQuantity();
         if (variant.getStock() < orderedQty) {
-            throw new RuntimeException(
+            throw new InvalidInputException(
                     "Sản phẩm '" + variant.getSku() + "' không đủ tồn kho. " +
                     "Còn lại: " + variant.getStock() + ", yêu cầu: " + orderedQty);
         }
 
-        // Trừ tồn kho và cộng số lượng đã bán
         variant.setStock(variant.getStock() - orderedQty);
         variant.setSold(variant.getSold() + orderedQty);
         productVariantRepository.save(variant);
@@ -104,7 +103,8 @@ public class OrderService {
 
     public BigDecimal calculateFinalAmount(List<OrderItemEntity> cartItems) {
         return cartItems.stream()
-                .map(item -> item.getVariant().getOverridePrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> item.getVariant().getOverridePrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -115,10 +115,7 @@ public class OrderService {
     }
 
     public int processPaymentStatus(String paymentMethodCode) {
-        if (paymentMethodCode.equals("COD")) {
-            return 0;
-        }
-        return 1;
+        return "COD".equals(paymentMethodCode) ? 0 : 1;
     }
 
     @Transactional(readOnly = true)
@@ -141,11 +138,11 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
 
         if (!"COD".equalsIgnoreCase(order.getPaymentMethodCode())) {
-            throw new NotImplementedException("không thể hủy do chưa triển khai");
+            throw new NotImplementedException("Không thể hủy đơn hàng với phương thức thanh toán này");
         }
 
-        if (order.getStatus().equals(OrderStatus.CANCELED)) {
-            throw new RuntimeException("Đơn hàng đã được hủy trước đó");
+        if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new InvalidInputException("Đơn hàng đã được hủy trước đó");
         }
 
         order.setStatus(OrderStatus.CANCELED);
