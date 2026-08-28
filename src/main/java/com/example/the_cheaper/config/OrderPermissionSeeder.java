@@ -59,9 +59,7 @@ public class OrderPermissionSeeder implements CommandLineRunner {
     }
 
     private PermissionEntity findOrCreatePermission(String code, String name, String description) {
-        return permissionRepository.findAll().stream()
-                .filter(permission -> code.equals(permission.getCode()))
-                .findFirst()
+        return permissionRepository.findByCode(code)
                 .orElseGet(() -> permissionRepository.save(PermissionEntity.builder()
                         .name(name)
                         .code(code)
