@@ -4,7 +4,6 @@ import com.example.the_cheaper.dto.request.admin.AdminOrderFilterRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOrderStatusUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
-import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
 import com.example.the_cheaper.exception.NotImplementedException;
@@ -24,14 +23,14 @@ public class AdminOrderService {
     private final AdminOrderMapper adminOrderMapper;
 
     @Transactional(readOnly = true)
-    public Page<AdminOrderOverviewResponse> getListOrders(AccountEntity currentUser, AdminOrderFilterRequest request) {
+    public Page<AdminOrderOverviewResponse> getListOrders(AdminOrderFilterRequest request) {
         Page<OrderEntity> orderEntities = adminOrderRepository.findByAdminFilter(
                 request.getStatus(), PageRequest.of(request.getPage() - 1, request.getLimit()));
         return orderEntities.map(adminOrderMapper::toOverviewResponse);
     }
 
     @Transactional
-    public Page<AdminOrderOverviewResponse> searchOrders(Long id, AccountEntity currentUser, int page, int limit) {
+    public Page<AdminOrderOverviewResponse> searchOrders(Long id, int page, int limit) {
         Page<OrderEntity> orderEntities = adminOrderRepository.findOrderByIdContainingIgnoreCase(id,
                 PageRequest.of(page - 1, limit));
 
@@ -39,14 +38,14 @@ public class AdminOrderService {
     }
 
     @Transactional(readOnly = true)
-    public AdminOrderDetailResponse getOrderDetail(AccountEntity currentUser, Long orderId) {
+    public AdminOrderDetailResponse getOrderDetail(Long orderId) {
         return adminOrderRepository.findById(orderId)
                 .map(adminOrderMapper::toDetailResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
     }
 
     @Transactional
-    public AdminOrderOverviewResponse updateOrderStatus(AccountEntity currentUser, Long orderId,
+    public AdminOrderOverviewResponse updateOrderStatus(Long orderId,
                                                         AdminOrderStatusUpdateRequest request) {
         OrderEntity orderEntity = adminOrderRepository.findById(orderId)
                 .orElseThrow(() -> new NotImplementedException("Đơn hàng không tồn tại"));
