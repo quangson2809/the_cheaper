@@ -20,7 +20,6 @@ import java.util.Set;
         }
 )
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -98,5 +97,12 @@ public class OrderEntity {
                     "Không thể chuyển trạng thái từ " + status + " sang " + targetStatus);
         }
         this.status = targetStatus;
+    }
+
+    public void addItems(List<OrderItemEntity> orderItems) {
+        if (orderItems == null || orderItems.isEmpty()) {
+            return;
+        }
+        this.items.addAll(orderItems);
     }
 }
