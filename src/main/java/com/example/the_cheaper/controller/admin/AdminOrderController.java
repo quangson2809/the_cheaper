@@ -1,13 +1,10 @@
 package com.example.the_cheaper.controller.admin;
 
-import com.example.the_cheaper.annotation.CurrentUser;
 import com.example.the_cheaper.dto.ApiResponse;
 import com.example.the_cheaper.dto.request.admin.AdminOrderFilterRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOrderStatusUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
-import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.exception.AuthorizationException;
 import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.service.admin.AdminOrderService;
@@ -33,10 +30,9 @@ public class AdminOrderController {
     @GetMapping
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<Page<AdminOrderOverviewResponse>>> getListOrders(
-            @CurrentUser AccountEntity currentUser,
             AdminOrderFilterRequest request) {
         try {
-            Page<AdminOrderOverviewResponse> response = adminOrderService.getListOrders(currentUser, request);
+            Page<AdminOrderOverviewResponse> response = adminOrderService.getListOrders(request);
             return ResponseEntity.ok(ApiResponse.success(response, "Lấy danh sách đơn hàng thành công"));
         } catch (NotImplementedException e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
@@ -47,19 +43,13 @@ public class AdminOrderController {
     @GetMapping("/{order_id}")
     @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<AdminOrderDetailResponse>> getOrderDetail(
-            @PathVariable("order_id") Long orderId,
-            @CurrentUser AccountEntity currentUser
-    ) {
+            @PathVariable("order_id") Long orderId) {
         try {
-            AdminOrderDetailResponse response = adminOrderService.getOrderDetail(currentUser, orderId);
+            AdminOrderDetailResponse response = adminOrderService.getOrderDetail(orderId);
             return ResponseEntity.ok(ApiResponse.success(response, "Lấy chi tiết đơn hàng thành công"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(),
-                            "/api/admin/orders/" + orderId));
-        } catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ApiResponse.error(HttpStatus.FORBIDDEN.value(), e.getMessage(),
                             "/api/admin/orders/" + orderId));
         }
     }
@@ -68,15 +58,10 @@ public class AdminOrderController {
     @PreAuthorize("hasAuthority('ORDER_UPDATE')")
     public ResponseEntity<ApiResponse<AdminOrderOverviewResponse>> updateOrderStatus(
             @PathVariable("order_id") Long orderId,
-            @RequestBody AdminOrderStatusUpdateRequest request,
-            @CurrentUser AccountEntity currentUser) {
+            @RequestBody AdminOrderStatusUpdateRequest request) {
         try {
-            AdminOrderOverviewResponse response = adminOrderService.updateOrderStatus(currentUser, orderId, request);
+            AdminOrderOverviewResponse response = adminOrderService.updateOrderStatus(orderId, request);
             return ResponseEntity.ok(ApiResponse.success(response, "Cập nhật trạng thái đơn hàng thành công"));
-        } catch (AuthorizationException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(ApiResponse.error(HttpStatus.FORBIDDEN.value(), e.getMessage(),
-                            "/api/admin/orders/" + orderId + "/status"));
         } catch (ResourceNotFoundException | NotImplementedException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(),
