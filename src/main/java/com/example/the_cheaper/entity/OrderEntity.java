@@ -8,7 +8,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -24,6 +26,13 @@ import java.util.List;
 @Builder
 @EntityListeners(AuditingEntityListener.class)
 public class OrderEntity {
+    private static final Set<OrderStatus> PENDING_TRANSITIONS =
+            EnumSet.of(OrderStatus.PROCESSING, OrderStatus.CANCELED);
+    private static final Set<OrderStatus> PROCESSING_TRANSITIONS =
+            EnumSet.of(OrderStatus.SHIPPING, OrderStatus.CANCELED);
+    private static final Set<OrderStatus> SHIPPING_TRANSITIONS =
+            EnumSet.of(OrderStatus.DELIVERED);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -65,5 +74,26 @@ public class OrderEntity {
 
     public boolean isPaid() {
         return paymentStatus == 1;
+    }
+
+    public boolean canTransitionTo(OrderStatus targetStatus) {
+        if (status == null || targetStatus == null || status == targetStatus) {
+            return false;
+        }
+
+        return switch (status) {
+            case PENDING -> PENDING_TRANSITIONS.contains(targetStatus);
+            case PROCESSING -> PROCESSING_TRANSITIONS.contains(targetStatus);
+            case SHIPPING -> SHIPPING_TRANSITIONS.contains(targetStatus);
+            case DELIVERED, CANCELED, REFUNDED -> false;
+        };
+    }
+
+    public void transitionTo(OrderStatus targetStatus) {
+        if (!canTransitionTo(targetStatus)) {
+            throw new IllegalStateException(
+                    "Không thể chuyển trạng thái từ " + status + " sang " + targetStatus);
+        }
+        this.status = targetStatus;
     }
 }
