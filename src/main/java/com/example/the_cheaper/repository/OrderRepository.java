@@ -3,6 +3,7 @@ package com.example.the_cheaper.repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import com.example.the_cheaper.entity.MaterialEntity;
 import com.example.the_cheaper.entity.OrderStatus;
@@ -18,6 +19,8 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     List<OrderEntity> findByAccountId(Long accountId);
 
     Page<OrderEntity> findByAccountIdOrderByCreatedAtDesc(Long accountId, Pageable pageable);
+
+    Optional<OrderEntity> findByIdAndAccountId(Long orderId, Long accountId);
 
     @Query("SELECT o FROM OrderEntity o WHERE (:status IS NULL OR o.status = :status) ")
     Page<OrderEntity> findByAdminFilter(
