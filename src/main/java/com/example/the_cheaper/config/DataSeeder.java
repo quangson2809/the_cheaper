@@ -205,147 +205,17 @@ public class DataSeeder implements CommandLineRunner {
         p1.getImages().add(ProductImageEntity.builder().name("air-max-270-black.jpg").alt("Nike Air Max 270 Đen").product(p1).build());
         p1.getImages().add(ProductImageEntity.builder().name("air-max-270-white.jpg").alt("Nike Air Max 270 Trắng").product(p1).build());
         p2.getImages().add(ProductImageEntity.builder().name("ultraboost-22-main.jpg").alt("Adidas Ultraboost 22").product(p2).build());
-        p2.getImages().add(ProductImageEntity.builder().name("ultraboost-22-side.jpg").alt("Adidas Ultraboost 22 Góc Cạnh").product(p2).build());
-        p3.getImages().add(ProductImageEntity.builder().name("rs-x-reinvention.jpg").alt("Puma RS-X Reinvention").product(p3).build());
-        p4.getImages().add(ProductImageEntity.builder().name("phantom-gx-elite.jpg").alt("Nike Phantom GX Elite FG").product(p4).build());
+        p3.getImages().add(ProductImageEntity.builder().name("puma-rsx-main.jpg").alt("Puma RS-X").product(p3).build());
+        p4.getImages().add(ProductImageEntity.builder().name("phantom-gx-main.jpg").alt("Nike Phantom GX Elite FG").product(p4).build());
         p5.getImages().add(ProductImageEntity.builder().name("dame-8-main.jpg").alt("Adidas Dame 8").product(p5).build());
-        p6.getImages().add(ProductImageEntity.builder().name("chuck-taylor-classic.jpg").alt("Converse Chuck Taylor Classic").product(p6).build());
-        p6.getImages().add(ProductImageEntity.builder().name("chuck-taylor-black.jpg").alt("Converse Chuck Taylor Đen").product(p6).build());
-        p7.getImages().add(ProductImageEntity.builder().name("vans-old-skool.jpg").alt("Vans Old Skool Classic").product(p7).build());
-        p7.getImages().add(ProductImageEntity.builder().name("vans-old-skool-navy.jpg").alt("Vans Old Skool Navy").product(p7).build());
-        p8.getImages().add(ProductImageEntity.builder().name("nb-574-core.jpg").alt("New Balance 574 Core").product(p8).build());
-        p9.getImages().add(ProductImageEntity.builder().name("hovr-sonic-5.jpg").alt("UA HOVR Sonic 5").product(p9).build());
-        p9.getImages().add(ProductImageEntity.builder().name("hovr-sonic-5-blue.jpg").alt("UA HOVR Sonic 5 Xanh").product(p9).build());
-        p10.getImages().add(ProductImageEntity.builder().name("reebok-classic-leather.jpg").alt("Reebok Classic Leather Legacy").product(p10).build());
+        p6.getImages().add(ProductImageEntity.builder().name("chuck-taylor-main.jpg").alt("Converse Chuck Taylor").product(p6).build());
+        p7.getImages().add(ProductImageEntity.builder().name("vans-old-skool-main.jpg").alt("Vans Old Skool").product(p7).build());
+        p8.getImages().add(ProductImageEntity.builder().name("nb-574-main.jpg").alt("New Balance 574").product(p8).build());
+        p9.getImages().add(ProductImageEntity.builder().name("ua-hovr-main.jpg").alt("Under Armour HOVR Sonic 5").product(p9).build());
+        p10.getImages().add(ProductImageEntity.builder().name("reebok-classic-main.jpg").alt("Reebok Classic Leather Legacy").product(p10).build());
         productRepository.saveAll(List.of(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10));
 
-        ProductVariantEntity v1 = productVariantRepository.save(ProductVariantEntity.builder().sku("NIKE-AM270-BLK-40").stock(50).sold(0).overridePrice(null).product(p1).optionValues(List.of(size40, colorBlack, styleLow)).build());
-        ProductVariantEntity v2 = productVariantRepository.save(ProductVariantEntity.builder().sku("NIKE-AM270-WHT-41").stock(35).sold(0).overridePrice(null).product(p1).optionValues(List.of(size41, colorWhite, styleLow)).build());
-        ProductVariantEntity v3 = productVariantRepository.save(ProductVariantEntity.builder().sku("ADID-UB22-GRY-40").stock(40).sold(0).overridePrice(new BigDecimal("3600000")).product(p2).optionValues(List.of(size40, colorGray)).build());
-        ProductVariantEntity v4 = productVariantRepository.save(ProductVariantEntity.builder().sku("ADID-UB22-BLK-42").stock(25).sold(0).overridePrice(null).product(p2).optionValues(List.of(size42, colorBlack)).build());
-        ProductVariantEntity v5 = productVariantRepository.save(ProductVariantEntity.builder().sku("PUMA-RSX-RED-39").stock(30).sold(0).overridePrice(new BigDecimal("2100000")).product(p3).optionValues(List.of(size39, colorRed)).build());
-        ProductVariantEntity v6 = productVariantRepository.save(ProductVariantEntity.builder().sku("NIKE-PHG-BLK-41").stock(20).sold(0).overridePrice(null).product(p4).optionValues(List.of(size41, colorBlack)).build());
-        ProductVariantEntity v7 = productVariantRepository.save(ProductVariantEntity.builder().sku("NIKE-PHG-WHT-42").stock(15).sold(0).overridePrice(null).product(p4).optionValues(List.of(size42, colorWhite)).build());
-        ProductVariantEntity v8 = productVariantRepository.save(ProductVariantEntity.builder().sku("ADID-D8-BLU-40").stock(45).sold(0).overridePrice(null).product(p5).optionValues(List.of(size40, colorBlue)).build());
-        ProductVariantEntity v9 = productVariantRepository.save(ProductVariantEntity.builder().sku("CONV-CT-BLK-38").stock(60).sold(0).overridePrice(null).product(p6).optionValues(List.of(size38, colorBlack, styleHigh, matCanvas)).build());
-        ProductVariantEntity v10 = productVariantRepository.save(ProductVariantEntity.builder().sku("CONV-CT-WHT-39").stock(55).sold(0).overridePrice(null).product(p6).optionValues(List.of(size39, colorWhite, styleHigh, matCanvas)).build());
-        ProductVariantEntity v11 = productVariantRepository.save(ProductVariantEntity.builder().sku("VANS-OS-BLK-40").stock(70).sold(0).overridePrice(null).product(p7).optionValues(List.of(size40, colorBlack, styleLow)).build());
-        ProductVariantEntity v12 = productVariantRepository.save(ProductVariantEntity.builder().sku("VANS-OS-WHT-41").stock(65).sold(0).overridePrice(null).product(p7).optionValues(List.of(size41, colorWhite, styleLow)).build());
-        ProductVariantEntity v13 = productVariantRepository.save(ProductVariantEntity.builder().sku("NB-574-GRY-39").stock(40).sold(0).overridePrice(new BigDecimal("1750000")).product(p8).optionValues(List.of(size39, colorGray)).build());
-        ProductVariantEntity v14 = productVariantRepository.save(ProductVariantEntity.builder().sku("NB-574-BLU-42").stock(30).sold(0).overridePrice(null).product(p8).optionValues(List.of(size42, colorBlue)).build());
-        ProductVariantEntity v15 = productVariantRepository.save(ProductVariantEntity.builder().sku("UA-HS5-BLK-40").stock(35).sold(0).overridePrice(null).product(p9).optionValues(List.of(size40, colorBlack, matMesh)).build());
-        ProductVariantEntity v16 = productVariantRepository.save(ProductVariantEntity.builder().sku("UA-HS5-BLU-41").stock(28).sold(0).overridePrice(new BigDecimal("2400000")).product(p9).optionValues(List.of(size41, colorBlue, matMesh)).build());
-        ProductVariantEntity v17 = productVariantRepository.save(ProductVariantEntity.builder().sku("REEB-CL-WHT-38").stock(45).sold(0).overridePrice(null).product(p10).optionValues(List.of(size38, colorWhite, matLeather)).build());
-        ProductVariantEntity v18 = productVariantRepository.save(ProductVariantEntity.builder().sku("REEB-CL-BLK-40").stock(38).sold(0).overridePrice(null).product(p10).optionValues(List.of(size40, colorBlack, matLeather)).build());
-        ProductVariantEntity v19 = productVariantRepository.save(ProductVariantEntity.builder().sku("PUMA-RSX-BLK-41").stock(22).sold(0).overridePrice(null).product(p3).optionValues(List.of(size41, colorBlack)).build());
-        ProductVariantEntity v20 = productVariantRepository.save(ProductVariantEntity.builder().sku("ADID-D8-RED-42").stock(18).sold(0).overridePrice(new BigDecimal("3000000")).product(p5).optionValues(List.of(size42, colorRed)).build());
-
-        List<AddressEntity> addresses = List.of(
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(0)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(1)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(2)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(3)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(4)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(5)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(6)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(7)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(8)).build(),
-                AddressEntity.builder().homeNumber("12").street("Trần Hưng Đạo").district("Quận 5").city("TP.HCM").account(accounts.get(0)).build()
-        );
-        accounts.get(0).getAddresses().addAll(addresses.subList(0, 1));
-        accounts.get(1).getAddresses().addAll(addresses.subList(1, 2));
-        accounts.get(2).getAddresses().addAll(addresses.subList(2, 3));
-        accounts.get(3).getAddresses().addAll(addresses.subList(3, 4));
-        accounts.get(4).getAddresses().addAll(addresses.subList(4, 5));
-        accounts.get(5).getAddresses().addAll(addresses.subList(5, 6));
-        accounts.get(6).getAddresses().addAll(addresses.subList(6, 7));
-        accounts.get(7).getAddresses().addAll(addresses.subList(7, 8));
-        accounts.get(8).getAddresses().addAll(addresses.subList(8, 9));
-        accounts.get(0).getAddresses().addAll(addresses.subList(9, 10));
-        accountRepository.saveAll(accounts);
-
-        List<CartEntity> carts = cartRepository.saveAll(List.of(
-                CartEntity.builder().account(accounts.get(0)).build(),
-                CartEntity.builder().account(accounts.get(1)).build(),
-                CartEntity.builder().account(accounts.get(2)).build(),
-                CartEntity.builder().account(accounts.get(3)).build(),
-                CartEntity.builder().account(accounts.get(4)).build(),
-                CartEntity.builder().account(accounts.get(5)).build(),
-                CartEntity.builder().account(accounts.get(6)).build(),
-                CartEntity.builder().account(accounts.get(7)).build(),
-                CartEntity.builder().account(accounts.get(8)).build(),
-                CartEntity.builder().account(accounts.get(9)).build()
-        ));
-
-        carts.get(0).getItems().add(CartItemEntity.builder().cart(carts.get(0)).variant(v1).quantity(2).build());
-        carts.get(0).getItems().add(CartItemEntity.builder().cart(carts.get(0)).variant(v9).quantity(1).build());
-        carts.get(1).getItems().add(CartItemEntity.builder().cart(carts.get(1)).variant(v3).quantity(1).build());
-        carts.get(2).getItems().add(CartItemEntity.builder().cart(carts.get(2)).variant(v11).quantity(2).build());
-        carts.get(3).getItems().add(CartItemEntity.builder().cart(carts.get(3)).variant(v17).quantity(1).build());
-        carts.get(4).getItems().add(CartItemEntity.builder().cart(carts.get(4)).variant(v5).quantity(3).build());
-        carts.get(5).getItems().add(CartItemEntity.builder().cart(carts.get(5)).variant(v8).quantity(1).build());
-        carts.get(6).getItems().add(CartItemEntity.builder().cart(carts.get(6)).variant(v13).quantity(2).build());
-        carts.get(7).getItems().add(CartItemEntity.builder().cart(carts.get(7)).variant(v15).quantity(1).build());
-        carts.get(8).getItems().add(CartItemEntity.builder().cart(carts.get(8)).variant(v20).quantity(1).build());
-        cartRepository.saveAll(carts);
-
-        List<OrderEntity> orders = orderRepository.saveAll(List.of(
-                OrderEntity.builder().account(accounts.get(0)).status(OrderStatus.DELIVERED).finalAmount(new BigDecimal("2990000")).receiver("Nguyễn Văn An").phone("0901234567").location("123 Nguyễn Huệ, Quận 1, TP.HCM").paymentStatus(1).paymentMethodCode("MOMO").build(),
-                OrderEntity.builder().account(accounts.get(1)).status(OrderStatus.SHIPPING).finalAmount(new BigDecimal("3800000")).receiver("Trần Thị Bình").phone("0912345678").paymentMethodCode("MOMO").paymentStatus(1).location("45 Trần Hưng Đạo, Quận 5, TP.HCM").build(),
-                OrderEntity.builder().account(accounts.get(2)).status(OrderStatus.PROCESSING).finalAmount(new BigDecimal("1200000")).paymentMethodCode("MOMO").receiver("Lê Văn Cường").phone("0923456789").paymentStatus(0).location("88 Lê Lợi, Quận 3, TP.HCM").build(),
-                OrderEntity.builder().account(accounts.get(3)).status(OrderStatus.PROCESSING).finalAmount(new BigDecimal("5800000")).paymentMethodCode("MOMO").receiver("Phạm Thị Dung").phone("0934567890").paymentStatus(1).location("12 Hoàng Diệu, Quận 4, TP.HCM").build(),
-                OrderEntity.builder().account(accounts.get(4)).status(OrderStatus.PENDING).finalAmount(new BigDecimal("2300000")).paymentMethodCode("MOMO").receiver("Hoàng Văn Em").phone("0945678901").paymentStatus(0).location("67 Cách Mạng Tháng 8, Quận 10").build(),
-                OrderEntity.builder().account(accounts.get(5)).status(OrderStatus.DELIVERED).finalAmount(new BigDecimal("1500000")).paymentMethodCode("MOMO").receiver("Vũ Thị Phương").phone("0956789012").paymentStatus(1).location("30 Phan Đình Phùng, Phú Nhuận").build(),
-                OrderEntity.builder().account(accounts.get(6)).status(OrderStatus.CANCELED).finalAmount(new BigDecimal("3200000")).paymentMethodCode("MOMO").receiver("Đặng Văn Giang").phone("0967890123").paymentStatus(0).location("99 Đinh Tiên Hoàng, Bình Thạnh").build(),
-                OrderEntity.builder().account(accounts.get(7)).status(OrderStatus.REFUNDED).finalAmount(new BigDecimal("1900000")).paymentMethodCode("MOMO").receiver("Bùi Thị Hoa").phone("0978901234").paymentStatus(0).location("15 Lý Thường Kiệt, Tân Bình").build(),
-                OrderEntity.builder().account(accounts.get(0)).status(OrderStatus.DELIVERED).finalAmount(new BigDecimal("6600000")).paymentMethodCode("MOMO").receiver("Nguyễn Văn An").phone("0901234567").paymentStatus(1).location("123 Nguyễn Huệ, Quận 1, TP.HCM").build(),
-                OrderEntity.builder().account(accounts.get(8)).status(OrderStatus.PROCESSING).finalAmount(new BigDecimal("2600000")).paymentMethodCode("MOMO").receiver("Ngô Văn Inh").phone("0989012345").paymentStatus(1).location("22 Trường Chinh, Quận 12").build()
-        ));
-
-        orders.get(0).getItems().add(OrderItemEntity.builder().order(orders.get(0)).variant(v1).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(1).getItems().add(OrderItemEntity.builder().order(orders.get(1)).variant(v3).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(2).getItems().add(OrderItemEntity.builder().order(orders.get(2)).variant(v9).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(3).getItems().add(OrderItemEntity.builder().order(orders.get(3)).variant(v6).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(4).getItems().add(OrderItemEntity.builder().order(orders.get(4)).variant(v5).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(5).getItems().add(OrderItemEntity.builder().order(orders.get(5)).variant(v10).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(5).getItems().add(OrderItemEntity.builder().order(orders.get(5)).variant(v12).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(6).getItems().add(OrderItemEntity.builder().order(orders.get(6)).variant(v8).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(7).getItems().add(OrderItemEntity.builder().order(orders.get(7)).variant(v13).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(8).getItems().add(OrderItemEntity.builder().order(orders.get(8)).variant(v4).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(8).getItems().add(OrderItemEntity.builder().order(orders.get(8)).variant(v7).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(9).getItems().add(OrderItemEntity.builder().order(orders.get(9)).variant(v15).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(0).getItems().add(OrderItemEntity.builder().order(orders.get(0)).variant(v11).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(2).getItems().add(OrderItemEntity.builder().order(orders.get(2)).variant(v17).quantity(1).price(new BigDecimal("122212")).build());
-        orders.get(1).getItems().add(OrderItemEntity.builder().order(orders.get(1)).variant(v20).quantity(1).price(new BigDecimal("122212")).build());
-        orderRepository.saveAll(orders);
-
-        paymentRepository.saveAll(List.of(
-                PaymentEntity.builder().order(orders.get(0)).amount(new BigDecimal("2990000")).method("MOMO").status("COMPLETED").build(),
-                PaymentEntity.builder().order(orders.get(1)).amount(new BigDecimal("3800000")).method("BANK_TRANSFER").status("COMPLETED").build(),
-                PaymentEntity.builder().order(orders.get(2)).amount(new BigDecimal("1200000")).method("COD").status("PENDING").build(),
-                PaymentEntity.builder().order(orders.get(3)).amount(new BigDecimal("5800000")).method("CREDIT_CARD").status("COMPLETED").build(),
-                PaymentEntity.builder().order(orders.get(4)).amount(new BigDecimal("2300000")).method("COD").status("PENDING").build(),
-                PaymentEntity.builder().order(orders.get(5)).amount(new BigDecimal("1500000")).method("ZALOPAY").status("COMPLETED").build(),
-                PaymentEntity.builder().order(orders.get(6)).amount(new BigDecimal("3200000")).method("MOMO").status("REFUNDED").build(),
-                PaymentEntity.builder().order(orders.get(7)).amount(new BigDecimal("1900000")).method("BANK_TRANSFER").status("REFUNDED").build(),
-                PaymentEntity.builder().order(orders.get(8)).amount(new BigDecimal("6600000")).method("CREDIT_CARD").status("COMPLETED").build(),
-                PaymentEntity.builder().order(orders.get(9)).amount(new BigDecimal("2600000")).method("VNPAY").status("COMPLETED").build()
-        ));
-
-        reviewRepository.saveAll(List.of(
-                ReviewEntity.builder().account(accounts.get(0)).product(p1).content("Giày rất êm, đi chạy bộ tuyệt vời! Mua lần 2 rồi vẫn không thất vọng.").rating(5).build(),
-                ReviewEntity.builder().account(accounts.get(1)).product(p2).content("Chất lượng tốt, đúng size. Đệm boost cực kỳ thoải mái khi chạy dài.").rating(5).build(),
-                ReviewEntity.builder().account(accounts.get(2)).product(p6).content("Kiểu dáng đẹp, hợp trend. Tuy nhiên canvas dễ bẩn một chút.").rating(4).build(),
-                ReviewEntity.builder().account(accounts.get(3)).product(p4).content("Giày bóng đá chất lượng cao, bám sân tốt. Xứng đáng với giá tiền.").rating(5).build(),
-                ReviewEntity.builder().account(accounts.get(4)).product(p3).content("Màu sắc đẹp, nhưng size hơi to hơn bình thường, nên xuống 1 size.").rating(3).build(),
-                ReviewEntity.builder().account(accounts.get(5)).product(p6).content("Mua cho con gái, bé rất thích. Chất liệu thoáng mát.").rating(5).build(),
-                ReviewEntity.builder().account(accounts.get(6)).product(p5).content("Giày bóng rổ nhẹ, phản lực tốt. Giao hàng nhanh.").rating(4).build(),
-                ReviewEntity.builder().account(accounts.get(7)).product(p8).content("Giày đi bộ hàng ngày rất phù hợp. Đế đệm tốt, đi lâu không mỏi chân.").rating(4).build(),
-                ReviewEntity.builder().account(accounts.get(0)).product(p7).content("Classic muôn thuở! Phối đồ rất dễ. Chất lượng bền như kỳ vọng.").rating(5).build(),
-                ReviewEntity.builder().account(accounts.get(8)).product(p9).content("Kết nối app theo dõi tập luyện rất hay. Giày nhẹ và thoáng.").rating(4).build()
-        ));
-
-        log.info("Database seeding completed successfully");
+        log.info("Database seeding completed.");
     }
 
     private RoleEntity findOrCreateRole(String name, String description) {
@@ -378,7 +248,9 @@ public class DataSeeder implements CommandLineRunner {
                 new PermissionDefinition("PERMISSION_READ", "Xem permission", "Xem danh sách và thông tin permission"),
                 new PermissionDefinition("PERMISSION_CREATE", "Tạo permission", "Tạo permission mới"),
                 new PermissionDefinition("PERMISSION_UPDATE", "Cập nhật permission", "Cập nhật thông tin permission"),
-                new PermissionDefinition("PERMISSION_DELETE", "Xóa permission", "Xóa permission")
+                new PermissionDefinition("PERMISSION_DELETE", "Xóa permission", "Xóa permission"),
+                new PermissionDefinition("ORDER_READ", "Xem đơn hàng", "Xem danh sách và chi tiết đơn hàng phía quản trị"),
+                new PermissionDefinition("ORDER_UPDATE", "Cập nhật đơn hàng", "Cập nhật trạng thái đơn hàng phía quản trị")
         );
 
         Map<String, PermissionEntity> result = permissionRepository.findAll().stream()
