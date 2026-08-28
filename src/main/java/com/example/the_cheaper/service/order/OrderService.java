@@ -70,7 +70,7 @@ public class OrderService {
 
         List<OrderItemEntity> orderItems = toOrderItemEntities(cart.getItems(), order);
         order.addItems(orderItems);
-        order.setFinalAmount(calculateFinalAmount(orderItems));
+        order.recalculateFinalAmount();
         processCart(cart);
 
         return orderMapper.toResponse(orderRepository.save(order));
