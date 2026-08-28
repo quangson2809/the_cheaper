@@ -5,13 +5,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.the_cheaper.entity.MaterialEntity;
+import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import com.example.the_cheaper.entity.OrderEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,15 +20,14 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
     Optional<OrderEntity> findByIdAndAccountId(Long orderId, Long accountId);
 
-    @Query("SELECT o FROM OrderEntity o WHERE (:status IS NULL OR o.status = :status) ")
+    @Query("SELECT o FROM OrderEntity o WHERE (:status IS NULL OR o.status = :status)")
     Page<OrderEntity> findByAdminFilter(
             @Param("status") OrderStatus status,
             Pageable pageable
     );
 
-    @Query("SELECT o FROM OrderEntity o WHERE " +
-            " o.id = :id ")
-    Page<OrderEntity> findOrderByIdContainingIgnoreCase(
+    @Query("SELECT o FROM OrderEntity o WHERE o.id = :id")
+    Page<OrderEntity> findOrdersById(
             @Param("id") Long id,
             Pageable pageable);
 
@@ -55,9 +52,10 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     List<Object[]> getOrderStatusCounts();
 
     @Query("select count(o) from OrderEntity o where o.paymentStatus = 1 and o.createdAt between :from and :to")
-    int countByPayAtBetween(@Param("from")LocalDateTime from,
-                                @Param("to")LocalDateTime to);
+    int countByPayAtBetween(@Param("from") LocalDateTime from,
+                            @Param("to") LocalDateTime to);
+
     @Query("select coalesce(sum(o.finalAmount)) from OrderEntity o where o.paymentStatus = 1 and o.createdAt between :from and :to")
-    BigDecimal revenueByPayAtBetween(@Param("from")LocalDateTime from,
-                                @Param("to")LocalDateTime to);
+    BigDecimal revenueByPayAtBetween(@Param("from") LocalDateTime from,
+                                     @Param("to") LocalDateTime to);
 }
