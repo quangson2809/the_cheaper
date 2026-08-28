@@ -105,4 +105,11 @@ public class OrderEntity {
         }
         this.items.addAll(orderItems);
     }
+
+    public void recalculateFinalAmount() {
+        this.finalAmount = items.stream()
+                .map(item -> item.getVariant().getOverridePrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }
