@@ -24,16 +24,8 @@ public class OrderPermissionSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        PermissionEntity readPermission = findOrCreatePermission(
-                "ORDER_READ",
-                "Xem đơn hàng",
-                "Xem danh sách và chi tiết đơn hàng phía quản trị"
-        );
-        PermissionEntity updatePermission = findOrCreatePermission(
-                "ORDER_UPDATE",
-                "Cập nhật đơn hàng",
-                "Cập nhật trạng thái đơn hàng phía quản trị"
-        );
+        PermissionEntity readPermission = findOrCreatePermission("ORDER_READ", "Xem đơn hàng", "Xem danh sách và chi tiết đơn hàng phía quản trị");
+        PermissionEntity updatePermission = findOrCreatePermission("ORDER_UPDATE", "Cập nhật đơn hàng", "Cập nhật trạng thái đơn hàng phía quản trị");
 
         roleRepository.findByName(Shared.ADMIN_ROLE).ifPresent(adminRole -> {
             ensureRolePermission(adminRole, readPermission);
