@@ -1,10 +1,6 @@
 package com.example.the_cheaper.service.order;
 
-import com.example.the_cheaper.config.Shared;
 import com.example.the_cheaper.dto.request.user.UserCreateOrderRequest;
-import com.example.the_cheaper.dto.request.user.UserCheckoutRequest;
-import com.example.the_cheaper.dto.response.user.UserOrderOverviewResponse;
-import com.example.the_cheaper.dto.response.user.UserOrderResponse;
 import com.example.the_cheaper.entity.*;
 import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
@@ -126,38 +122,23 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserOrderResponse> getMyOrders(Long userId, int page, int limit) {
+    public Page<UserOrderResponse> getMyOrders(Long accountId, int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Page<OrderEntity> orderPage = orderRepository.findByAccountIdOrderByCreatedAtDesc(userId, pageable);
+        Page<OrderEntity> orderPage = orderRepository.findByAccountIdOrderByCreatedAtDesc(accountId, pageable);
         return orderPage.map(orderMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
-    public UserOrderResponse getOrderDetail(Long orderId, Long userId, String role) {
-        // TODO: implement user ownership check
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotImplementedException("Đơn hàng không tồn tại"));
-        if (!checkAuthentication(order.getAccount().getId(), userId, role)) {
-            throw new NotImplementedException("Bạn không có quyền truy cập đơn hàng này");
-        }
+    public UserOrderResponse getOrderDetail(Long orderId, Long accountId) {
+        OrderEntity order = orderRepository.findByIdAndAccountId(orderId, accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
         return orderMapper.toResponse(order);
     }
 
-    public boolean checkAuthentication(Long ownerId, Long userId, String role) {
-        if (role.equals(Shared.ADMIN_ROLE)) {
-            return true;
-        }
-        return ownerId.equals(userId);
-    }
-
     @Transactional
-    public UserOrderResponse cancelOrder(Long orderId, Long userId) {
-        OrderEntity order = orderRepository.findById(orderId)
+    public UserOrderResponse cancelOrder(Long orderId, Long accountId) {
+        OrderEntity order = orderRepository.findByIdAndAccountId(orderId, accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
-        
-        if (!order.getAccount().getId().equals(userId)) {
-            throw new RuntimeException("Bạn không có quyền hủy đơn hàng này");
-        }
 
         if (!"COD".equalsIgnoreCase(order.getPaymentMethodCode())) {
             throw new NotImplementedException("không thể hủy do chưa triển khai");
@@ -166,7 +147,7 @@ public class OrderService {
         if (order.getStatus().equals(OrderStatus.CANCELED)) {
             throw new RuntimeException("Đơn hàng đã được hủy trước đó");
         }
-        
+
         order.setStatus(OrderStatus.CANCELED);
         orderRepository.save(order);
 
