@@ -21,6 +21,10 @@ public class ProductVariantEntity {
     @Column(nullable = false, unique = true)
     private String sku;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     private int stock;
 
     private int sold;
