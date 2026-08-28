@@ -1,27 +1,27 @@
 package com.example.the_cheaper.controller.admin;
 
-import com.example.the_cheaper.annotation.CurrentUser;
 import com.example.the_cheaper.dto.ApiResponse;
 import com.example.the_cheaper.dto.request.admin.AdminOrderFilterRequest;
 import com.example.the_cheaper.dto.request.admin.AdminOrderStatusUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
-import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.exception.AuthorizationException;
 import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.service.admin.AdminOrderService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.the_cheaper.entity.AccountEntity;
+import com.example.the_cheaper.annotation.CurrentUser;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +31,6 @@ public class AdminOrderController {
     private final AdminOrderService adminOrderService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<Page<AdminOrderOverviewResponse>>> getListOrders(
             @CurrentUser AccountEntity currentUser,
             AdminOrderFilterRequest request) {
@@ -45,13 +44,12 @@ public class AdminOrderController {
     }
 
     @GetMapping("/{order_id}")
-    @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<AdminOrderDetailResponse>> getOrderDetail(
             @PathVariable("order_id") Long orderId,
             @CurrentUser AccountEntity currentUser
     ) {
         try {
-            AdminOrderDetailResponse response = adminOrderService.getOrderDetail(currentUser, orderId);
+            AdminOrderDetailResponse response = adminOrderService.getOrderDetail(currentUser,orderId);
             return ResponseEntity.ok(ApiResponse.success(response, "Lấy chi tiết đơn hàng thành công"));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -65,7 +63,6 @@ public class AdminOrderController {
     }
 
     @PatchMapping("/{order_id}/status")
-    @PreAuthorize("hasAuthority('ORDER_UPDATE')")
     public ResponseEntity<ApiResponse<AdminOrderOverviewResponse>> updateOrderStatus(
             @PathVariable("order_id") Long orderId,
             @RequestBody AdminOrderStatusUpdateRequest request,
@@ -73,14 +70,16 @@ public class AdminOrderController {
         try {
             AdminOrderOverviewResponse response = adminOrderService.updateOrderStatus(currentUser, orderId, request);
             return ResponseEntity.ok(ApiResponse.success(response, "Cập nhật trạng thái đơn hàng thành công"));
-        } catch (AuthorizationException e) {
+        }catch (AuthorizationException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(ApiResponse.error(HttpStatus.FORBIDDEN.value(), e.getMessage(),
                             "/api/admin/orders/" + orderId + "/status"));
-        } catch (ResourceNotFoundException | NotImplementedException e) {
+        }catch (ResourceNotFoundException | NotImplementedException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(),
                             "/api/admin/orders/" + orderId + "/status"));
         }
     }
 }
+
+
