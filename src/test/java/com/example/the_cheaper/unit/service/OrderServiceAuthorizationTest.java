@@ -2,6 +2,7 @@ package com.example.the_cheaper.unit.service;
 
 import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
+import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.user.UserOrderMapper;
 import com.example.the_cheaper.repository.AccountRepository;
@@ -99,5 +100,21 @@ class OrderServiceAuthorizationTest {
         assertEquals(OrderStatus.CANCELED, order.getStatus());
         verify(orderRepository).findByIdAndAccountId(orderId, accountId);
         verify(orderRepository).save(order);
+    }
+
+    @Test
+    void cancelOrderRejectsTerminalOrder() {
+        long accountId = 10L;
+        long orderId = 400L;
+        OrderEntity order = OrderEntity.builder()
+                .id(orderId)
+                .paymentMethodCode("COD")
+                .status(OrderStatus.DELIVERED)
+                .build();
+
+        when(orderRepository.findByIdAndAccountId(orderId, accountId)).thenReturn(Optional.of(order));
+
+        assertThrows(InvalidInputException.class, () -> orderService.cancelOrder(orderId, accountId));
+        verify(orderRepository).findByIdAndAccountId(orderId, accountId);
     }
 }
