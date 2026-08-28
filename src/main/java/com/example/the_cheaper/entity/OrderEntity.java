@@ -11,7 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders")
+@Table(
+        name = "orders",
+        indexes = {
+                @Index(name = "idx_orders_account_created_at", columnList = "account_id, created_at")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -54,7 +59,7 @@ public class OrderEntity {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    public int getCountItems(){
+    public int getCountItems() {
         return items.size();
     }
 
