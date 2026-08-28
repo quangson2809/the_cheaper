@@ -7,7 +7,6 @@ import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
 import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
 import com.example.the_cheaper.exception.InvalidInputException;
-import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminOrderMapper;
 import com.example.the_cheaper.repository.OrderRepository;
@@ -34,7 +33,6 @@ public class AdminOrderService {
     public Page<AdminOrderOverviewResponse> searchOrders(Long id, int page, int limit) {
         Page<OrderEntity> orderEntities = adminOrderRepository.findOrderByIdContainingIgnoreCase(id,
                 PageRequest.of(page - 1, limit));
-
         return orderEntities.map(adminOrderMapper::toOverviewResponse);
     }
 
