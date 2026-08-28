@@ -24,8 +24,6 @@ public class UserOrderController {
 
     private final OrderService orderService;
 
-    // ─── POST /orders — Mua hàng (Thanh toán) ──────────────────────────────────
-
     @PostMapping
     @PreAuthorize("hasAuthority('USER_ORDER_CREATE')")
     public ResponseEntity<ApiResponse<UserOrderResponse>> createOrder(
@@ -53,16 +51,8 @@ public class UserOrderController {
             @CurrentUser AccountEntity currentUser,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
-        try {
-            Page<UserOrderResponse> response = orderService.getMyOrders(currentUser.getId(), page, limit);
-            return ResponseEntity.ok(ApiResponse.success(response, "Lấy lịch sử đơn hàng thành công"));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), "/api/orders"));
-        } catch (NotImplementedException e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                    .body(ApiResponse.error(HttpStatus.NOT_IMPLEMENTED.value(), e.getMessage(), "/api/orders"));
-        }
+        Page<UserOrderResponse> response = orderService.getMyOrders(currentUser.getId(), page, limit);
+        return ResponseEntity.ok(ApiResponse.success(response, "Lấy lịch sử đơn hàng thành công"));
     }
 
     @GetMapping("/{order_id}")
@@ -76,10 +66,6 @@ public class UserOrderController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), "/api/orders/" + orderId));
-        } catch (NotImplementedException e) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                    .body(ApiResponse.error(HttpStatus.NOT_IMPLEMENTED.value(), e.getMessage(),
-                            "/api/orders/" + orderId));
         }
     }
 
@@ -94,12 +80,12 @@ public class UserOrderController {
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(ApiResponse.error(HttpStatus.NOT_FOUND.value(), e.getMessage(), "/api/orders/" + orderId + "/cancel"));
+        } catch (InvalidInputException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage(), "/api/orders/" + orderId + "/cancel"));
         } catch (NotImplementedException e) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                     .body(ApiResponse.error(HttpStatus.NOT_IMPLEMENTED.value(), e.getMessage(), "/api/orders/" + orderId + "/cancel"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage(), "/api/orders/" + orderId + "/cancel"));
         }
     }
 }
