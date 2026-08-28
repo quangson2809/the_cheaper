@@ -4,6 +4,8 @@ import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,5 +45,20 @@ class OrderEntityStateMachineTest {
         OrderEntity order = OrderEntity.builder().status(OrderStatus.DELIVERED).build();
 
         assertThrows(IllegalStateException.class, () -> order.transitionTo(OrderStatus.CANCELED));
+    }
+
+    @Test
+    void statusCannotBeMutatedThroughPublicSetter() {
+        assertThrows(NoSuchMethodException.class,
+                () -> OrderEntity.class.getMethod("setStatus", OrderStatus.class));
+
+        Method transitionMethod;
+        try {
+            transitionMethod = OrderEntity.class.getMethod("transitionTo", OrderStatus.class);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError("OrderEntity must expose transitionTo as the status mutation API", e);
+        }
+
+        assertTrue(java.lang.reflect.Modifier.isPublic(transitionMethod.getModifiers()));
     }
 }
