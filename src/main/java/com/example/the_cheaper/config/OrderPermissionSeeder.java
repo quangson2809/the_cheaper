@@ -24,12 +24,37 @@ public class OrderPermissionSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        PermissionEntity readPermission = findOrCreatePermission("ORDER_READ", "Xem đơn hàng", "Xem danh sách và chi tiết đơn hàng phía quản trị");
-        PermissionEntity updatePermission = findOrCreatePermission("ORDER_UPDATE", "Cập nhật đơn hàng", "Cập nhật trạng thái đơn hàng phía quản trị");
+        PermissionEntity adminReadPermission = findOrCreatePermission(
+                "ORDER_READ",
+                "Xem toàn bộ đơn hàng",
+                "Xem danh sách và chi tiết toàn bộ đơn hàng phía quản trị");
+        PermissionEntity adminUpdatePermission = findOrCreatePermission(
+                "ORDER_UPDATE",
+                "Cập nhật đơn hàng",
+                "Cập nhật trạng thái đơn hàng phía quản trị");
+
+        PermissionEntity userReadPermission = findOrCreatePermission(
+                "USER_ORDER_READ",
+                "Xem đơn hàng của mình",
+                "Xem danh sách và chi tiết đơn hàng thuộc tài khoản hiện tại");
+        PermissionEntity userCreatePermission = findOrCreatePermission(
+                "USER_ORDER_CREATE",
+                "Tạo đơn hàng",
+                "Tạo đơn hàng từ tài khoản hiện tại");
+        PermissionEntity userCancelPermission = findOrCreatePermission(
+                "USER_ORDER_CANCEL",
+                "Hủy đơn hàng của mình",
+                "Hủy đơn hàng thuộc tài khoản hiện tại khi trạng thái cho phép");
 
         roleRepository.findByName(Shared.ADMIN_ROLE).ifPresent(adminRole -> {
-            ensureRolePermission(adminRole, readPermission);
-            ensureRolePermission(adminRole, updatePermission);
+            ensureRolePermission(adminRole, adminReadPermission);
+            ensureRolePermission(adminRole, adminUpdatePermission);
+        });
+
+        roleRepository.findByName(Shared.USER_ROLE).ifPresent(userRole -> {
+            ensureRolePermission(userRole, userReadPermission);
+            ensureRolePermission(userRole, userCreatePermission);
+            ensureRolePermission(userRole, userCancelPermission);
         });
     }
 
