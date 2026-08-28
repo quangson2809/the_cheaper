@@ -378,9 +378,7 @@ public class DataSeeder implements CommandLineRunner {
                 new PermissionDefinition("PERMISSION_READ", "Xem permission", "Xem danh sách và thông tin permission"),
                 new PermissionDefinition("PERMISSION_CREATE", "Tạo permission", "Tạo permission mới"),
                 new PermissionDefinition("PERMISSION_UPDATE", "Cập nhật permission", "Cập nhật thông tin permission"),
-                new PermissionDefinition("PERMISSION_DELETE", "Xóa permission", "Xóa permission"),
-                new PermissionDefinition("ORDER_READ", "Xem đơn hàng", "Xem danh sách và chi tiết đơn hàng phía quản trị"),
-                new PermissionDefinition("ORDER_UPDATE", "Cập nhật đơn hàng", "Cập nhật trạng thái đơn hàng phía quản trị")
+                new PermissionDefinition("PERMISSION_DELETE", "Xóa permission", "Xóa permission")
         );
 
         Map<String, PermissionEntity> result = permissionRepository.findAll().stream()
