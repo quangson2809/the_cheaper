@@ -141,13 +141,13 @@ public class OrderService {
             throw new NotImplementedException("Không thể hủy đơn hàng với phương thức thanh toán này");
         }
 
-        if (order.getStatus() == OrderStatus.CANCELED) {
-            throw new InvalidInputException("Đơn hàng đã được hủy trước đó");
+        try {
+            order.transitionTo(OrderStatus.CANCELED);
+        } catch (IllegalStateException e) {
+            throw new InvalidInputException(e.getMessage());
         }
 
-        order.setStatus(OrderStatus.CANCELED);
         orderRepository.save(order);
-
         return orderMapper.toResponse(order);
     }
 }
