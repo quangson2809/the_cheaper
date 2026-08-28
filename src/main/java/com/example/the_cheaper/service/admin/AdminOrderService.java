@@ -5,7 +5,6 @@ import com.example.the_cheaper.dto.request.admin.AdminOrderStatusUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
 import com.example.the_cheaper.entity.OrderEntity;
-import com.example.the_cheaper.entity.OrderStatus;
 import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminOrderMapper;
@@ -29,7 +28,7 @@ public class AdminOrderService {
         return orderEntities.map(adminOrderMapper::toOverviewResponse);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<AdminOrderOverviewResponse> searchOrders(Long id, int page, int limit) {
         Page<OrderEntity> orderEntities = adminOrderRepository.findOrdersById(
                 id, PageRequest.of(page - 1, limit));
@@ -45,45 +44,29 @@ public class AdminOrderService {
 
     @Transactional
     public AdminOrderOverviewResponse updateOrderStatus(Long orderId,
-                                                        AdminOrderStatusUpdateRequest request) {
+                                                         AdminOrderStatusUpdateRequest request) {
         OrderEntity orderEntity = adminOrderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
 
-        setStatus(orderEntity, request.getStatus());
-        adminOrderRepository.save(orderEntity);
+        try {
+            setStatus(orderEntity, request.getStatus());
+        } catch (IllegalStateException e) {
+            throw new InvalidInputException(e.getMessage());
+        }
 
+        adminOrderRepository.save(orderEntity);
         return adminOrderMapper.toOverviewResponse(orderEntity);
     }
 
-    public void setStatus(OrderEntity order, OrderStatus status) {
-        switch (order.getStatus()) {
-            case PENDING:
-                if (status.equals(OrderStatus.PROCESSING) || status.equals(OrderStatus.CANCELED)) {
-                    order.setStatus(status);
-                } else {
-                    throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
-                }
-                break;
-            case PROCESSING:
-                if (status.equals(OrderStatus.SHIPPING) || status.equals(OrderStatus.CANCELED)) {
-                    order.setStatus(status);
-                } else {
-                    throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
-                }
-                break;
-            case SHIPPING:
-                if (status.equals(OrderStatus.DELIVERED)) {
-                    checkPaid(order);
-                    order.setStatus(status);
-                } else {
-                    throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
-                }
-                break;
-            case DELIVERED, CANCELED:
-                throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
-            default:
-                throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ: " + status);
+    public void setStatus(OrderEntity order, com.example.the_cheaper.entity.OrderStatus status) {
+        if (status == null) {
+            throw new InvalidInputException("Trạng thái đơn hàng không được để trống");
         }
+        if (order.getStatus() == com.example.the_cheaper.entity.OrderStatus.SHIPPING
+                && status == com.example.the_cheaper.entity.OrderStatus.DELIVERED) {
+            checkPaid(order);
+        }
+        order.transitionTo(status);
     }
 
     public void checkPaid(OrderEntity order) {
