@@ -6,6 +6,7 @@ import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
 import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
+import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminOrderMapper;
@@ -48,7 +49,7 @@ public class AdminOrderService {
     public AdminOrderOverviewResponse updateOrderStatus(Long orderId,
                                                         AdminOrderStatusUpdateRequest request) {
         OrderEntity orderEntity = adminOrderRepository.findById(orderId)
-                .orElseThrow(() -> new NotImplementedException("Đơn hàng không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
 
         setStatus(orderEntity, request.getStatus());
         adminOrderRepository.save(orderEntity);
@@ -62,14 +63,14 @@ public class AdminOrderService {
                 if (status.equals(OrderStatus.PROCESSING) || status.equals(OrderStatus.CANCELED)) {
                     order.setStatus(status);
                 } else {
-                    throw new NotImplementedException("Trạng thái đơn hàng không hợp lệ");
+                    throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
                 }
                 break;
             case PROCESSING:
                 if (status.equals(OrderStatus.SHIPPING) || status.equals(OrderStatus.CANCELED)) {
                     order.setStatus(status);
                 } else {
-                    throw new NotImplementedException("Trạng thái đơn hàng không hợp lệ");
+                    throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
                 }
                 break;
             case SHIPPING:
@@ -77,19 +78,19 @@ public class AdminOrderService {
                     checkPaid(order);
                     order.setStatus(status);
                 } else {
-                    throw new NotImplementedException("Trạng thái đơn hàng không hợp lệ");
+                    throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
                 }
                 break;
             case DELIVERED, CANCELED:
-                throw new NotImplementedException("Trạng thái đơn hàng không hợp lệ");
+                throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ");
             default:
-                throw new NotImplementedException("Trạng thái đơn hàng không hợp lệ: " + status);
+                throw new InvalidInputException("Trạng thái đơn hàng không hợp lệ: " + status);
         }
     }
 
     public void checkPaid(OrderEntity order) {
         if (!order.isPaid()) {
-            throw new NotImplementedException("Đơn hàng chưa được thanh toán");
+            throw new InvalidInputException("Đơn hàng chưa được thanh toán");
         }
     }
 }
