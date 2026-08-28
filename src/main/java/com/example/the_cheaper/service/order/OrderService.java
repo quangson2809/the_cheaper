@@ -58,18 +58,19 @@ public class OrderService {
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Tài khoản không tồn tại"));
 
-        OrderEntity order = new OrderEntity();
-        List<OrderItemEntity> orderItems = toOrderItemEntities(cart.getItems(), order);
+        OrderEntity order = OrderEntity.builder()
+                .location(request.getLocation())
+                .phone(request.getPhone())
+                .receiver(request.getReceiver())
+                .status(OrderStatus.PENDING)
+                .paymentMethodCode(paymentCode)
+                .account(account)
+                .paymentStatus(processPaymentStatus(paymentCode))
+                .build();
 
-        order.setItems(orderItems);
-        order.setLocation(request.getLocation());
-        order.setPhone(request.getPhone());
-        order.setReceiver(request.getReceiver());
-        order.setStatus(OrderStatus.PENDING);
-        order.setPaymentMethodCode(paymentCode);
-        order.setAccount(account);
+        List<OrderItemEntity> orderItems = toOrderItemEntities(cart.getItems(), order);
+        order.addItems(orderItems);
         order.setFinalAmount(calculateFinalAmount(orderItems));
-        order.setPaymentStatus(processPaymentStatus(paymentCode));
         processCart(cart);
 
         return orderMapper.toResponse(orderRepository.save(order));
