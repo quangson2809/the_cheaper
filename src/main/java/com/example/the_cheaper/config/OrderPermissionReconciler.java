@@ -2,7 +2,6 @@ package com.example.the_cheaper.config;
 
 import com.example.the_cheaper.entity.PermissionEntity;
 import com.example.the_cheaper.entity.RoleEntity;
-import com.example.the_cheaper.entity.RolePermissionEntity;
 import com.example.the_cheaper.repository.PermissionRepository;
 import com.example.the_cheaper.repository.RolePermissionRepository;
 import com.example.the_cheaper.repository.RoleRepository;
@@ -12,10 +11,21 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Order(101)
 public class OrderPermissionReconciler implements CommandLineRunner {
+
+    private static final List<String> STAFF_ONLY_ORDER_PERMISSIONS = List.of(
+            "ORDER_READ",
+            "ORDER_UPDATE",
+            "ORDER_CONFIRM",
+            "ORDER_CANCEL",
+            "ORDER_DELIVERY_UPDATE",
+            "ORDER_PAYMENT_COLLECT"
+    );
 
     private final PermissionRepository permissionRepository;
     private final RoleRepository roleRepository;
@@ -24,10 +34,8 @@ public class OrderPermissionReconciler implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        roleRepository.findByName(Shared.USER_ROLE).ifPresent(userRole -> {
-            removePermission(userRole, "ORDER_READ");
-            removePermission(userRole, "ORDER_UPDATE");
-        });
+        roleRepository.findByName(Shared.USER_ROLE).ifPresent(userRole ->
+                STAFF_ONLY_ORDER_PERMISSIONS.forEach(code -> removePermission(userRole, code)));
     }
 
     private void removePermission(RoleEntity role, String permissionCode) {
