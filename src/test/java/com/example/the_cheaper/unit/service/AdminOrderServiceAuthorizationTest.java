@@ -1,5 +1,6 @@
 package com.example.the_cheaper.unit.service;
 
+import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.mapper.admin.AdminOrderMapper;
 import com.example.the_cheaper.repository.OrderRepository;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,12 +36,17 @@ class AdminOrderServiceAuthorizationTest {
     void getOrderDetailUsesGlobalOrderLookupWithoutOwnerConstraint() {
         long orderId = 100L;
         OrderEntity order = OrderEntity.builder().id(orderId).build();
+        AdminOrderDetailResponse mappedResponse = AdminOrderDetailResponse.builder()
+                .id(orderId)
+                .build();
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        when(orderMapper.toDetailResponse(order)).thenReturn(null);
+        when(orderMapper.toDetailResponse(order)).thenReturn(mappedResponse);
 
-        adminOrderService.getOrderDetail(orderId);
+        AdminOrderDetailResponse response = adminOrderService.getOrderDetail(orderId);
 
+        assertSame(mappedResponse, response);
         verify(orderRepository).findById(orderId);
+        verify(orderMapper).toDetailResponse(order);
     }
 }

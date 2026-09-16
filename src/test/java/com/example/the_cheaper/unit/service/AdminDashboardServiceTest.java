@@ -115,11 +115,11 @@ class AdminDashboardServiceTest {
         // Assert
         assertThat(responses).hasSize(2);
         
-        OrderStatusRatioResponse completedRatio = responses.stream()
-                .filter(r -> r.getStatus().equals("COMPLETED"))
+        OrderStatusRatioResponse deliveredRatio = responses.stream()
+                .filter(r -> r.getStatus().equals("DELIVERED"))
                 .findFirst().orElseThrow();
-        assertThat(completedRatio.getCount()).isEqualTo(150L);
-        assertThat(completedRatio.getPercentage()).isEqualTo(75.0);
+        assertThat(deliveredRatio.getCount()).isEqualTo(150L);
+        assertThat(deliveredRatio.getPercentage()).isEqualTo(75.0);
         
         OrderStatusRatioResponse pendingRatio = responses.stream()
                 .filter(r -> r.getStatus().equals("PENDING"))
