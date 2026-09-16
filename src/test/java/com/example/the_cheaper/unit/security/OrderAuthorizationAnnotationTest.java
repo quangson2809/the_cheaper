@@ -13,7 +13,8 @@ class OrderAuthorizationAnnotationTest {
 
     @Test
     void adminOrderEndpointsUseAdminOrderPermissions() throws Exception {
-        assertEquals("hasAuthority('ORDER_READ')", preAuthorize(AdminOrderController.class, "getListOrders"));
+        assertEquals("hasAuthority('ORDER_READ')", preAuthorize(AdminOrderController.class, "getListOrders",
+                com.example.the_cheaper.dto.request.admin.AdminOrderFilterRequest.class));
         assertEquals("hasAuthority('ORDER_READ')", preAuthorize(AdminOrderController.class, "getOrderDetail", Long.class));
         assertEquals("hasAuthority('ORDER_UPDATE')", preAuthorize(AdminOrderController.class, "updateOrderStatus", Long.class,
                 com.example.the_cheaper.dto.request.admin.AdminOrderStatusUpdateRequest.class));

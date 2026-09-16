@@ -1,39 +1,27 @@
 package com.example.the_cheaper.integration;
 
-import com.example.the_cheaper.TheCheaperApplication;
 import com.example.the_cheaper.entity.OrderEntity;
 import com.example.the_cheaper.entity.OrderStatus;
 import com.example.the_cheaper.entity.ProductVariantEntity;
-import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.repository.OrderRepository;
 import com.example.the_cheaper.repository.ProductVariantRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Testcontainers
-@SpringBootTest(classes = TheCheaperApplication.class)
-class OrderOptimisticLockingIntegrationTest {
+class OrderOptimisticLockingIntegrationTest extends com.example.the_cheaper.testconfig.MySqlIntegrationTest {
 
-    @Container
-    static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.4");
+    private Long createdOrderId;
+    private Long createdVariantId;
 
-    @DynamicPropertySource
-    static void configureDatasource(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
-        registry.add("spring.datasource.username", MYSQL::getUsername);
-        registry.add("spring.datasource.password", MYSQL::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-        registry.add("spring.jpa.show-sql", () -> "false");
+    @AfterEach
+    void cleanUpCommittedRows() {
+        if (createdOrderId != null) orderRepository.deleteById(createdOrderId);
+        if (createdVariantId != null) productVariantRepository.deleteById(createdVariantId);
     }
 
     @Autowired
@@ -50,6 +38,7 @@ class OrderOptimisticLockingIntegrationTest {
                         .paymentStatus(0)
                         .paymentMethodCode("COD")
                         .build());
+        createdOrderId = created.getId();
         assertNotNull(created.getVersion());
 
         OrderEntity stale = orderRepository.findById(created.getId()).orElseThrow();
@@ -72,6 +61,7 @@ class OrderOptimisticLockingIntegrationTest {
                         .stock(10)
                         .sold(0)
                         .build());
+        createdVariantId = created.getId();
         assertNotNull(created.getVersion());
 
         ProductVariantEntity stale = productVariantRepository.findById(created.getId()).orElseThrow();

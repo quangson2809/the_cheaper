@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +19,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @Transactional
-class AdminDashboardServiceIntegrationTest {
+class AdminDashboardServiceIntegrationTest extends com.example.the_cheaper.testconfig.MySqlIntegrationTest {
 
     @Autowired
     private AdminDashboardService adminDashboardService;
@@ -50,15 +48,15 @@ class AdminDashboardServiceIntegrationTest {
                 .name("Admin User")
                 .email("admin_integration@example.com")
                 .passwordHash(passwordEncoder.encode("admin123"))
-                .role(adminRole)
                 .status(1)
                 .build();
                 
+        account.addRole(adminRole);
         adminAccount = accountRepository.save(account);
     }
 
     @Test
-    @DisplayName("getMonthlyRevenue - Should return empty or partial real data from database")
+    @DisplayName("getMonthlyRevenue - Should return zero revenue for an empty database")
     void getMonthlyRevenue_ShouldReturnData() {
         // Act
         List<MonthlyRevenueResponse> responses = adminDashboardService.getMonthlyRevenue(2024, adminAccount);
@@ -66,9 +64,10 @@ class AdminDashboardServiceIntegrationTest {
         // Assert
         assertThat(responses).isNotNull();
         assertThat(responses).hasSize(12);
-        // Since we are using real DB in test and it might be empty or have data, we just verify the structure
+        // Isolated test DB contains no orders.
         assertThat(responses.get(0).getMonth()).isEqualTo(1);
         assertThat(responses.get(11).getMonth()).isEqualTo(12);
+        assertThat(responses).allSatisfy(item -> assertThat(item.getRevenue()).isZero());
     }
 
     @Test
@@ -81,6 +80,7 @@ class AdminDashboardServiceIntegrationTest {
         assertThat(responses).isNotNull();
         assertThat(responses).hasSize(12);
         assertThat(responses.get(0).getMonth()).isEqualTo(1);
+        assertThat(responses).allSatisfy(item -> assertThat(item.getQuantity()).isZero());
     }
 
     @Test
@@ -90,7 +90,6 @@ class AdminDashboardServiceIntegrationTest {
         List<OrderStatusRatioResponse> responses = adminDashboardService.getOrderStatusRatios(adminAccount);
 
         // Assert
-        assertThat(responses).isNotNull();
-        // The list can be empty if there are no orders, but we verify it doesn't throw errors and executes query
+        assertThat(responses).isEmpty();
     }
 }

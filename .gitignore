@@ -54,6 +54,7 @@ Thumbs.db
 application-*.properties
 application-*.yaml
 application-*.yml
+!src/test/resources/application-test.properties
 
 # ====== Java / Build ======
 *.class

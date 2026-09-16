@@ -54,7 +54,6 @@ class AdminAccountRoleServiceTest {
                 .build();
         AccountEntity account = AccountEntity.builder()
                 .id(10L)
-                .role(role)
                 .build();
 
         when(accountRepository.findById(10L)).thenReturn(Optional.of(account));
@@ -69,7 +68,7 @@ class AdminAccountRoleServiceTest {
     }
 
     @Test
-    void assignAccountRole_ShouldReplaceCurrentRole() {
+    void assignAccountRole_ShouldAddRoleWithoutRemovingExistingRoles() {
         AccountEntity account = AccountEntity.builder().id(10L).build();
         RoleEntity role = RoleEntity.builder()
                 .id(2L)
@@ -84,11 +83,27 @@ class AdminAccountRoleServiceTest {
                 10L,
                 new AssignAccountRoleRequest(2L));
 
-        assertThat(account.getRole()).isSameAs(role);
+        var assignment = org.mockito.ArgumentCaptor.forClass(AccountRoleEntity.class);
         assertThat(result.getRoleId()).isEqualTo(2L);
         assertThat(result.getRoleName()).isEqualTo("PRODUCT_MANAGER");
-        verify(accountRoleRepository).deleteAllByAccountId(10L);
-        verify(accountRoleRepository).save(any(AccountRoleEntity.class));
-        verify(accountRepository).save(account);
+        verify(accountRoleRepository).save(assignment.capture());
+        assertThat(assignment.getValue().getAccount()).isSameAs(account);
+        assertThat(assignment.getValue().getRole()).isSameAs(role);
+        verify(accountRoleRepository, never()).deleteAllByAccountId(any());
+        verify(accountRepository, never()).save(any());
+    }
+    @Test
+    void assignAccountRole_ShouldRejectDuplicateAssignment() {
+        AccountEntity account = AccountEntity.builder().id(10L).build();
+        RoleEntity role = RoleEntity.builder().id(2L).name("STAFF").build();
+        when(accountRepository.findById(10L)).thenReturn(Optional.of(account));
+        when(roleRepository.findById(2L)).thenReturn(Optional.of(role));
+        when(accountRoleRepository.existsByAccountIdAndRoleId(10L, 2L)).thenReturn(true);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                service.assignAccountRole(10L, new AssignAccountRoleRequest(2L)))
+                .isInstanceOf(com.example.the_cheaper.exception.ResourceAlreadyExistsException.class);
+        verify(accountRoleRepository, never()).save(any());
+        verify(accountRoleRepository, never()).deleteAllByAccountId(any());
     }
 }

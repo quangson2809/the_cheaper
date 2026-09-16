@@ -11,7 +11,6 @@ import com.example.the_cheaper.mapper.admin.AdminPermissionMapper;
 import com.example.the_cheaper.repository.PermissionRepository;
 import com.example.the_cheaper.repository.RolePermissionRepository;
 import com.example.the_cheaper.service.admin.AdminPermissionService;
-import com.example.the_cheaper.service.admin.AdminProtectedAccess;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,9 +35,6 @@ class AdminPermissionServiceTest {
 
     @Mock
     private AdminPermissionMapper permissionMapper;
-
-    @Mock
-    private AdminProtectedAccess adminProtectedAccess;
 
     @InjectMocks
     private AdminPermissionService adminPermissionService;
@@ -75,7 +71,6 @@ class AdminPermissionServiceTest {
                 adminPermissionService.createPermission(request, admin);
 
         assertThat(result).isEqualTo(response);
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(permissionRepository).save(entity);
     }
 
@@ -110,7 +105,6 @@ class AdminPermissionServiceTest {
         AdminPermissionResponse result = adminPermissionService.getPermission(1L, admin);
 
         assertThat(result).isEqualTo(response);
-        verify(adminProtectedAccess).adminAccess(admin);
     }
 
     @Test
@@ -157,7 +151,6 @@ class AdminPermissionServiceTest {
 
         adminPermissionService.deletePermission(1L, admin);
 
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(permissionRepository).deleteById(1L);
     }
 

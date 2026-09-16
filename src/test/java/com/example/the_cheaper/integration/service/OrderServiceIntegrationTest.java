@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +18,8 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
-class OrderServiceIntegrationTest {
+class OrderServiceIntegrationTest extends com.example.the_cheaper.testconfig.MySqlIntegrationTest {
 
     @Autowired private OrderService orderService;
     @Autowired private AccountRepository accountRepository;
@@ -52,14 +50,14 @@ class OrderServiceIntegrationTest {
         });
 
         // ── Account
-        account = accountRepository.save(
-                AccountEntity.builder()
+        account = AccountEntity.builder()
                         .name("Test Buyer")
                         .email("buyer_order_test@example.com")
                         .passwordHash(passwordEncoder.encode("pass123"))
-                        .role(userRole)
                         .status(1)
-                        .build());
+                        .build();
+        account.addRole(userRole);
+        account = accountRepository.save(account);
 
         // ── Product + Variant
         ProductEntity product = productRepository.save(

@@ -16,9 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -28,9 +26,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 
-@SpringBootTest
 @Transactional
-class PasswordServiceIntegrationTest {
+class PasswordServiceIntegrationTest extends com.example.the_cheaper.testconfig.MySqlIntegrationTest {
 
     @Autowired
     private PasswordService passwordService;
@@ -46,9 +43,6 @@ class PasswordServiceIntegrationTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @MockitoBean
-    private EmailService emailService;
 
     private AccountEntity testAccount;
 
@@ -67,10 +61,10 @@ class PasswordServiceIntegrationTest {
                 .name("Password Test User")
                 .email("pwdtest@example.com")
                 .passwordHash(passwordEncoder.encode("oldPassword123"))
-                .role(userRole)
                 .status(1)
                 .build();
                 
+        account.addRole(userRole);
         testAccount = accountRepository.save(account);
     }
 

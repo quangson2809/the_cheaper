@@ -26,11 +26,12 @@ public class AccountFixtures {
                 .name("Test User")
                 .email("user@test.com")
                 .passwordHash("hashed_password")
-                .role(createUserRole())
                 .status(1)
                 .rewardPoint(100)
                 .build();
         
+        account.addRole(createUserRole());
+
         CartEntity cart = new CartEntity();
         cart.setId(1L);
         cart.setAccount(account);
@@ -45,10 +46,10 @@ public class AccountFixtures {
                 .name("Test Admin")
                 .email("admin@test.com")
                 .passwordHash("hashed_password")
-                .role(createAdminRole())
                 .status(1)
                 .rewardPoint(0)
                 .build();
+        account.addRole(createAdminRole());
         return account;
     }
 }
