@@ -74,5 +74,5 @@ OrderApiAuthorizationIntegrationTest dùng MySQL tạm, JWT thật và MockMvc v
 - Token thiếu/sai, tài khoản khóa; thu hồi quyền giữ nguyên token.
 - Validation 400, ownership/missing 404, forbidden 403.
 
-Đây là kiểm thử tích hợp quyền và API. Test concurrency MySQL có sẵn kiểm tra 409 ở tầng exception,
-nhưng chưa thay thế bài test HTTP cạnh tranh toàn luồng. Xem CI trên commit hiện tại để xác nhận kết quả thực thi.
+Đây là kiểm thử tích hợp quyền và API. Test concurrency MySQL có sẵn kiểm tra cập nhật stale bị từ chối;
+OrderErrorResponseTest kiểm tra ánh xạ exception đó sang HTTP 409. Hai test này chưa thay thế bài test HTTP cạnh tranh toàn luồng. Xem CI trên commit hiện tại để xác nhận kết quả thực thi.
