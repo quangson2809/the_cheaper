@@ -3,6 +3,10 @@
 Áp dụng cho `feature/order-rbac-refactor`. Baseline: `a204582d`.
 Đây là thiết kế mục tiêu, không phải tuyên bố các quyền đã được triển khai.
 
+Tình trạng bàn giao hiện tại: [Phase 6](PHASE6_HANDOFF.md). Hành vi API thực tế:
+[ORDER_API](../api/ORDER_API.md). Các mục tiêu nghiệp vụ chưa triển khai được tách ở
+[FOLLOW_UP](FOLLOW_UP.md); không suy chúng đã hoàn tất từ catalog quyền bên dưới.
+
 ## Quyết định đã xác nhận
 
 - Khách chỉ xem/hủy đơn của mình. Không nhận accountId do client cung cấp để quyết định chủ đơn.

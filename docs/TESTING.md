@@ -36,6 +36,12 @@ Cấu hình test có URL dự phòng cổng 1 để lỗi sớm nếu bỏ quên
 DataSeeder mẫu bị tắt bởi profile test; OrderPermissionSeeder/Reconciler vẫn chạy trên DB tạm.
 Các test tự tạo role/account cần thiết. Không yêu cầu MySQL/Mailtrap thật hoặc secret thật.
 
+Ngoại lệ có chủ đích: `Phase5RestartIntegrationTest` tự mở/đóng toàn bộ ứng dụng với
+profile `phase5-restart`, DataSeeder thật và MySQL container riêng sống qua các lần
+restart. Nó chỉ đọc cấu hình test, truyền URL/credentials của container bằng tham số;
+không dùng DB phát triển. `Phase5PostmanIntegrationTest` chạy server cổng ngẫu nhiên
+và Newman qua HTTP thật. Không tái dùng environment Postman sau khi test đã dừng server.
+
 Không dùng @Container trên từng class rồi tái sử dụng Spring context với container đã dừng.
 Container được quản lý cùng vòng đời context. Các service integration test rollback sau mỗi test.
 Test optimistic locking chạy qua các transaction riêng, tự xóa bản ghi đã tạo.
@@ -57,3 +63,18 @@ Test optimistic locking chạy qua các transaction riêng, tự xóa bản ghi 
 - [Spring Boot Testcontainers](https://docs.spring.io/spring-boot/4.0/reference/testing/testcontainers.html)
 - [Testcontainers MySQL](https://java.testcontainers.org/modules/databases/mysql/)
 - [Hợp đồng và các công việc tiếp nối](rbac/ORDER_RBAC_CONTRACT.md)
+- [Bắt đầu từ fresh checkout, gồm PowerShell](../README.md)
+- [Bàn giao và điều kiện merge](rbac/PHASE6_HANDOFF.md)
+
+## Khi môi trường chưa chạy được
+
+- Kiểm tra `java -version` là JDK 17 và `docker info` thành công. Integration test
+  cần Docker engine, không chỉ Docker CLI. Không đổi sang DB local để làm test xanh.
+- Thiếu Newman: chạy lệnh npm ở phần yêu cầu trước Gradle. Dùng `.phase5-tools`, không
+  cài vào `build/` vì `clean` sẽ xóa nó. Trên PowerShell có thể dùng `npm.cmd`.
+- Đường dẫn Windows có dấu có thể làm wrapper/JDK 17 lỗi classpath. Clone vào thư mục
+  ASCII như `C:\work\the_cheaper`; CI Linux là môi trường đã kiểm chứng.
+- `phase5_evidence.py` đọc báo cáo task `test` sau `clean build`, không dùng output
+  của riêng `unitTest`/`integrationTest` để tuyên bố nghiệm thu toàn bộ.
+- Artifact CI có hạn 90 ngày. Tải bản lưu khi bàn giao release nếu cần giữ đầy đủ XML/
+  HTML/log lâu hơn; JSON tổng hợp đã được commit trong `docs/rbac/evidence/`.
