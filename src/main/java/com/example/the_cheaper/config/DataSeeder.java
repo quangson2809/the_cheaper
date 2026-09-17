@@ -46,12 +46,6 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         log.info("Starting database seeding...");
 
-        paymentMethodRepository.saveAll(List.of(
-                PaymentMethodEntity.builder().code("COD").name("Thanh toán khi nhận hàng").status(1).build(),
-                PaymentMethodEntity.builder().code("MOMO").name("Ví MoMo").status(1).build(),
-                PaymentMethodEntity.builder().code("VNPAY").name("VNPay").status(1).build()
-        ));
-
         RoleEntity roleUser = findOrCreateRole(
                 Shared.USER_ROLE,
                 "Khách hàng sử dụng các chức năng phía client"
@@ -63,6 +57,19 @@ public class DataSeeder implements CommandLineRunner {
 
         Map<String, PermissionEntity> permissions = seedPermissions();
         seedRolePermissions(roleUser, roleAdmin, permissions);
+
+        // Demo fixtures are installed only on an empty business database. Restarting or
+        // upgrading an existing installation must not duplicate orders, stock or payments.
+        if (accountRepository.count() > 0 || productRepository.count() > 0
+                || orderRepository.count() > 0 || paymentMethodRepository.count() > 0) {
+            log.info("Existing business data detected; skipping demo fixtures");
+            return;
+        }
+        paymentMethodRepository.saveAll(List.of(
+                PaymentMethodEntity.builder().code("COD").name("Thanh toán khi nhận hàng").status(1).build(),
+                PaymentMethodEntity.builder().code("MOMO").name("Ví MoMo").status(1).build(),
+                PaymentMethodEntity.builder().code("VNPAY").name("VNPay").status(1).build()
+        ));
 
         String hashedPassword = passwordEncoder.encode("123456");
         List<AccountEntity> accounts = accountRepository.saveAll(List.of(

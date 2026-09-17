@@ -21,6 +21,11 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Postman runner
+        run: npm install --prefix .phase5-tools --no-audit --no-fund newman@6.2.1
       - name: Compile and run all tests (MySQL via Testcontainers)
         run: bash gradlew clean build --no-daemon --console=plain
       - name: Upload test reports
@@ -31,4 +36,5 @@ jobs:
           path: |
             build/reports/tests/
             build/test-results/
-          if-no-files-found: warn
+            build/phase5/
+          if-no-files-found: error

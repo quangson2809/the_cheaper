@@ -3,6 +3,7 @@ HELP.md
 Context/
 # ====== Gradle ======
 .gradle/
+.phase5-tools/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
