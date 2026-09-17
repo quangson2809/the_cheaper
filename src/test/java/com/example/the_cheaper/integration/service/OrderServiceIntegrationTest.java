@@ -40,6 +40,11 @@ class OrderServiceIntegrationTest extends com.example.the_cheaper.testconfig.MyS
     private static final int INITIAL_SOLD  = 5;
     private static final int ORDER_QTY     = 3;
 
+    @org.junit.jupiter.api.AfterEach
+    void clearAuthentication() {
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    }
+
     @BeforeEach
     void setUp() {
         // ── Role
@@ -58,6 +63,11 @@ class OrderServiceIntegrationTest extends com.example.the_cheaper.testconfig.MyS
                         .build();
         account.addRole(userRole);
         account = accountRepository.save(account);
+        var details = new com.example.the_cheaper.security.CustomUserDetails(account,
+                com.example.the_cheaper.security.CustomUserDetails.authorities("USER", java.util.List.of("USER_ORDER_CREATE")));
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        details, null, details.getAuthorities()));
 
         // ── Product + Variant
         ProductEntity product = productRepository.save(

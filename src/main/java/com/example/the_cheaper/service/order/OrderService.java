@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -47,6 +48,7 @@ public class OrderService {
     }
 
     @Transactional
+    @PreAuthorize("@orderAccess.canAccessOwn(authentication, #p0, 'USER_ORDER_CREATE')")
     public UserOrderResponse createOrder(Long accountId, UserCreateOrderRequest request) {
         CartEntity cart = cartRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Giỏ hàng của người dùng không tồn tại"));
@@ -76,7 +78,7 @@ public class OrderService {
         return orderMapper.toResponse(orderRepository.save(order));
     }
 
-    public OrderItemEntity toOrderItemEntity(CartItemEntity cartItem, OrderEntity order) {
+    private OrderItemEntity toOrderItemEntity(CartItemEntity cartItem, OrderEntity order) {
         OrderItemEntity orderItem = orderMapper.toOrderItemEntity(cartItem);
         ProductVariantEntity variant = productVariantRepository.findById(cartItem.getVariant().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Phiên bản sản phẩm không tồn tại"));
@@ -97,7 +99,7 @@ public class OrderService {
         return orderItem;
     }
 
-    public void processCart(CartEntity cart) {
+    private void processCart(CartEntity cart) {
         cart.getItems().clear();
         cartRepository.save(cart);
     }
@@ -109,24 +111,29 @@ public class OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public List<OrderItemEntity> toOrderItemEntities(List<CartItemEntity> cartItems, OrderEntity order) {
+    private List<OrderItemEntity> toOrderItemEntities(List<CartItemEntity> cartItems, OrderEntity order) {
         return cartItems.stream()
                 .map(item -> toOrderItemEntity(item, order))
                 .toList();
     }
 
-    public int processPaymentStatus(String paymentMethodCode) {
+    private int processPaymentStatus(String paymentMethodCode) {
         return "COD".equals(paymentMethodCode) ? 0 : 1;
     }
 
     @Transactional(readOnly = true)
+    @PreAuthorize("@orderAccess.canAccessOwn(authentication, #p0, 'USER_ORDER_READ')")
     public Page<UserOrderResponse> getMyOrders(Long accountId, int page, int limit) {
+        if (page < 1 || limit < 1 || limit > 100) {
+            throw new InvalidInputException("page phải >= 1; limit phải từ 1 đến 100");
+        }
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<OrderEntity> orderPage = orderRepository.findByAccountIdOrderByCreatedAtDesc(accountId, pageable);
         return orderPage.map(orderMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
+    @PreAuthorize("@orderAccess.canAccessOwn(authentication, #p1, 'USER_ORDER_READ')")
     public UserOrderResponse getOrderDetail(Long orderId, Long accountId) {
         OrderEntity order = orderRepository.findByIdAndAccountId(orderId, accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));
@@ -134,6 +141,7 @@ public class OrderService {
     }
 
     @Transactional
+    @PreAuthorize("@orderAccess.canAccessOwn(authentication, #p1, 'USER_ORDER_CANCEL')")
     public UserOrderResponse cancelOrder(Long orderId, Long accountId) {
         OrderEntity order = orderRepository.findByIdAndAccountId(orderId, accountId)
                 .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại"));

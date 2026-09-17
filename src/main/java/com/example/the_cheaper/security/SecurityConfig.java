@@ -1,5 +1,9 @@
 package com.example.the_cheaper.security;
 
+import com.example.the_cheaper.dto.ApiResponse;
+import tools.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,11 +30,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint((request, response, exception) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json;charset=UTF-8");
+                            objectMapper.writeValue(response.getWriter(), new ApiResponse<Void>(
+                                    401, "Yêu cầu đăng nhập hợp lệ", null, LocalDateTime.now(), request.getRequestURI()));
+                        })
+                        .accessDeniedHandler((request, response, exception) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json;charset=UTF-8");
+                            objectMapper.writeValue(response.getWriter(), new ApiResponse<Void>(
+                                    403, "Bạn không có quyền thực hiện thao tác này", null,
+                                    LocalDateTime.now(), request.getRequestURI()));
+                        }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/swagger-ui.html",

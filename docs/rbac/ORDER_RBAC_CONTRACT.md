@@ -47,7 +47,10 @@ Không đánh dấu phase đã kiểm chứng nếu chưa chạy được các k
 
 Test hiện tại về trừ kho/tăng sold lúc checkout chỉ là regression cho baseline, không phải nghiệm thu quy tắc mới.
 
-## Khoảng trống được phát hiện, cần theo dõi
+## Khoảng trống tại baseline a204582d (lịch sử)
+
+Tình trạng mới nhất: [đánh giá Phase 3 và API Phase 4](PHASE3_REVIEW_PHASE4_API.md).
+Danh sách dưới đây ghi nhận baseline, không đại diện trạng thái hiện tại.
 
 - Seed role/quyền chưa bảo đảm thứ tự trên DB mới; restart có thể gán lại quyền đã thu hồi.
 - ADMIN bypass và các permission thao tác mới chưa triển khai.

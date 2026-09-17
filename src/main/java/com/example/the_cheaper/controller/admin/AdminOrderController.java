@@ -7,6 +7,7 @@ import com.example.the_cheaper.dto.response.admin.AdminOrderDetailResponse;
 import com.example.the_cheaper.dto.response.admin.AdminOrderOverviewResponse;
 import com.example.the_cheaper.service.admin.AdminOrderService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,15 +26,15 @@ public class AdminOrderController {
     private final AdminOrderService adminOrderService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ORDER_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<Page<AdminOrderOverviewResponse>>> getListOrders(
-            AdminOrderFilterRequest request) {
+            @Valid AdminOrderFilterRequest request) {
         Page<AdminOrderOverviewResponse> response = adminOrderService.getListOrders(request);
         return ResponseEntity.ok(ApiResponse.success(response, "Lấy danh sách đơn hàng thành công"));
     }
 
     @GetMapping("/{order_id}")
-    @PreAuthorize("hasAuthority('ORDER_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ORDER_READ')")
     public ResponseEntity<ApiResponse<AdminOrderDetailResponse>> getOrderDetail(
             @PathVariable("order_id") Long orderId) {
         AdminOrderDetailResponse response = adminOrderService.getOrderDetail(orderId);
@@ -41,10 +42,10 @@ public class AdminOrderController {
     }
 
     @PatchMapping("/{order_id}/status")
-    @PreAuthorize("hasAuthority('ORDER_UPDATE')")
+    @PreAuthorize("@orderAccess.canUpdate(authentication, #p1)")
     public ResponseEntity<ApiResponse<AdminOrderOverviewResponse>> updateOrderStatus(
             @PathVariable("order_id") Long orderId,
-            @RequestBody AdminOrderStatusUpdateRequest request) {
+            @Valid @RequestBody AdminOrderStatusUpdateRequest request) {
         AdminOrderOverviewResponse response = adminOrderService.updateOrderStatus(orderId, request);
         return ResponseEntity.ok(ApiResponse.success(response, "Cập nhật trạng thái đơn hàng thành công"));
     }

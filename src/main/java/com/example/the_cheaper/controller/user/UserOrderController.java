@@ -7,6 +7,8 @@ import com.example.the_cheaper.dto.response.user.UserOrderResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.service.order.OrderService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,7 +24,7 @@ public class UserOrderController {
     private final OrderService orderService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('USER_ORDER_CREATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('USER_ORDER_CREATE')")
     public ResponseEntity<ApiResponse<UserOrderResponse>> createOrder(
             @CurrentUser AccountEntity currentUser,
             @RequestBody @Valid UserCreateOrderRequest request) {
@@ -32,17 +34,17 @@ public class UserOrderController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('USER_ORDER_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('USER_ORDER_READ')")
     public ResponseEntity<ApiResponse<Page<UserOrderResponse>>> getMyOrders(
             @CurrentUser AccountEntity currentUser,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit) {
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int limit) {
         Page<UserOrderResponse> response = orderService.getMyOrders(currentUser.getId(), page, limit);
         return ResponseEntity.ok(ApiResponse.success(response, "Lấy lịch sử đơn hàng thành công"));
     }
 
     @GetMapping("/{order_id}")
-    @PreAuthorize("hasAuthority('USER_ORDER_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('USER_ORDER_READ')")
     public ResponseEntity<ApiResponse<UserOrderResponse>> getOrderDetail(
             @CurrentUser AccountEntity currentUser,
             @PathVariable("order_id") Long orderId) {
@@ -51,7 +53,7 @@ public class UserOrderController {
     }
 
     @PostMapping("/{order_id}/cancel")
-    @PreAuthorize("hasAuthority('USER_ORDER_CANCEL')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('USER_ORDER_CANCEL')")
     public ResponseEntity<ApiResponse<UserOrderResponse>> cancelOrder(
             @CurrentUser AccountEntity currentUser,
             @PathVariable("order_id") Long orderId) {

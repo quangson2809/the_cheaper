@@ -1,5 +1,7 @@
 # The Cheaper — Order API Postman Test Plan
 
+> Cập nhật Phase 4: ORDER_UPDATE không còn dùng để đổi trạng thái. PROCESSING/DELIVERED dùng ORDER_CONFIRM; CANCELED dùng ORDER_CANCEL; SHIPPING dùng ORDER_DELIVERY_UPDATE. Xem [hợp đồng API hiện tại](../rbac/PHASE3_REVIEW_PHASE4_API.md). Giao thất bại và thu tiền COD chưa có API hoàn chỉnh.
+
 ## 1. Mục tiêu
 
 Tài liệu này dùng để kiểm thử thủ công module Order trên branch `feature/order-rbac-refactor`, tập trung vào 4 invariant:
