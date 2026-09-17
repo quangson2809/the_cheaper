@@ -4,6 +4,20 @@ Nhánh nguồn `feature/order-rbac-refactor`, đích `main`. Rà soát bắt đ�
 main đối chiếu là `4c030fb`. Phạm vi: phân quyền API Order hiện có, kế thừa quyết
 định Phase 1 và việc giữ phạm vi đã xác nhận ở Phase 5. Không mở rộng nghiệp vụ mới.
 
+PR bàn giao: [#2 — Refactor Order RBAC](https://github.com/quangson2809/the_cheaper/pull/2),
+giữ draft để review các giới hạn còn lại. **Phase 6 bàn giao đã kiểm chứng; merge và
+rollout chưa thực hiện.** Điều này không chuyển các mục RBAC/BIZ/OPS còn hoãn thành hoàn tất.
+
+## Kết quả kiểm chứng Phase 6
+
+Code sau dọn lớp cũ tại `0173f1ca644523b3ba95070a158f2fba616a5e87` đã chạy
+[CI thành công](https://github.com/quangson2809/the_cheaper/actions/runs/35249636841):
+179 JUnit test, 0 failure/error/skip; Newman 45 request/71 assertion, 0 failure;
+evidence `accepted: true`. [Artifact đầy đủ](https://github.com/quangson2809/the_cheaper/actions/runs/35249636841/artifacts/10508702455)
+và [JSON tổng hợp trong Git](evidence/phase6-0173f1c.json) gắn kết quả với SHA.
+Các liên kết tài liệu nội bộ đã được kiểm tra, main/test biên dịch được, source không
+còn tham chiếu AuthorizationException. Kết quả CI của head mới nhất luôn xem trên PR.
+
 ## Kết quả đối chiếu code với hợp đồng
 
 | Quy tắc | Đường code hiện tại | Bằng chứng |
@@ -64,17 +78,18 @@ Chuỗi trạng thái: **chưa bắt đầu → đang làm → đã triển khai
 | Phase 3 — quyền áp dụng cho Order | Đã kiểm chứng trong phạm vi Order | Cấp/thu hồi, hợp quyền, ADMIN, khóa, restart; không nghiệm thu RBAC toàn hệ thống |
 | Phase 4 — API Order hiện có | Đã kiểm chứng | JWT/filter/controller/service/DB và hồi quy |
 | Phase 5 — ma trận | Đã kiểm chứng | Kết quả 179 JUnit; 45 request/71 assertion; không skip |
-| Phase 6 — rà soát, tài liệu, dọn đường cũ | Đã triển khai | Đối chiếu source, kiểm tra liên kết và CI trên SHA bàn giao; PR cập nhật kết quả cuối |
-| Phase 6 — PR/merge | Đang làm khi tạo bản tài liệu này | PR là bản ghi kết quả cuối; giữ draft khi các điểm chặn chưa được xử lý/định phạm vi |
+| Phase 6 — rà soát, tài liệu, dọn đường cũ | Đã kiểm chứng | Đối chiếu source, liên kết nội bộ, compile và CI tại 0173f1c; bằng chứng ở trên |
+| Phase 6 — chuẩn bị PR | Đã kiểm chứng | PR #2 đã tạo đúng base/head, có kết quả test và giới hạn; giữ draft |
+| Merge/rollout | Chưa bắt đầu | Chưa có phê duyệt/định phạm vi các điểm chặn; không tự merge |
 | Nghiệp vụ tiếp nối và rollout thật | Chưa bắt đầu | Xem từng mục BIZ/RBAC/OPS/UI trong FOLLOW_UP |
 
 Không quy trạng thái các mục hoãn thành hoàn thành nhánh. Reviewer dùng checklist
-dưới và kết quả kiểm chứng trên PR để chuyển Phase 6 sang `đã kiểm chứng`.
+dưới và kết quả kiểm chứng trên PR để quyết định merge/rollout riêng.
 
 ## Checklist để review/merge
 
 - [ ] CI trên head của PR đạt, `evidence.json` accepted=true; các report bắt buộc đầy đủ.
-- [ ] Người nhận đi từ README tới API, test, dữ liệu và giới hạn mà không cần chat.
+- [x] Bộ tài liệu có đường đi từ README tới API, test, dữ liệu và giới hạn; liên kết hợp lệ.
 - [ ] Mapping quyền staff đã được chủ hệ thống duyệt; không auto-expand ORDER_UPDATE.
 - [ ] RBAC-01 dashboard, RBAC-02 role ADMIN và RBAC-03 catalog quản trị đã được xử lý
   hoặc quyết định phạm vi/biện pháp cụ thể trên PR. Hiện chưa có quyết định đó.
