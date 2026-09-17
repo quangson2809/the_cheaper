@@ -28,11 +28,15 @@ jobs:
         run: npm install --prefix .phase5-tools --no-audit --no-fund newman@6.2.1
       - name: Compile and run all tests (MySQL via Testcontainers)
         run: bash gradlew clean build --no-daemon --console=plain
+      - name: Check required matrix and save evidence
+        if: always()
+        run: python3 scripts/phase5_evidence.py
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-reports
+          retention-days: 90
           path: |
             build/reports/tests/
             build/test-results/

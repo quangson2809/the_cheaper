@@ -5,6 +5,8 @@
 - JDK 17; dùng Gradle wrapper 9.3.1 của repo.
 - Docker đang chạy để thực hiện integration test (MySQL 8.4 Testcontainers).
 - Có mạng để tải dependency và Docker image lần đầu.
+- Node.js 22 và Newman: `npm install --prefix .phase5-tools --no-audit --no-fund newman@6.2.1`.
+- Python 3 để tổng hợp bằng chứng: `python scripts/phase5_evidence.py` sau `clean build`.
 
 ## Các lệnh
 
@@ -23,6 +25,8 @@ bash gradlew clean build
 Báo cáo HTML: `build/reports/tests/<task>/index.html`.
 JUnit XML: `build/test-results/<task>/`.
 Workflow `Backend tests` chạy `clean build` trên push/PR và lưu báo cáo dưới dạng artifact.
+Phase 5 chạy thêm collection Postman trên server thật; báo cáo Newman nằm ở `build/phase5/`.
+Xem [ma trận Phase 5](rbac/PHASE5_TEST_MATRIX.md) và [hướng dẫn Postman](postman/ORDER_API_POSTMAN_TEST_PLAN.md).
 
 ## Cô lập dữ liệu và tác động bên ngoài
 
