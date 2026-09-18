@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface PermissionRepository extends JpaRepository<PermissionEntity, Long> {
 
     boolean existsByName(String name);
@@ -16,4 +18,6 @@ public interface PermissionRepository extends JpaRepository<PermissionEntity, Lo
     boolean existsByCodeAndIdNot(String code, Long id);
 
     Page<PermissionEntity> findAllByOrderByIdDesc(Pageable pageable);
+
+    Optional<PermissionEntity> findByCode(String code);
 }

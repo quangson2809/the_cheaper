@@ -8,6 +8,8 @@ import com.example.the_cheaper.dto.response.admin.AdminAccountRoleResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.AccountRoleEntity;
 import com.example.the_cheaper.entity.RoleEntity;
+import com.example.the_cheaper.exception.InvalidInputException;
+import com.example.the_cheaper.service.authorization.SystemRoleGuard;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminAccountMapper;
@@ -30,6 +32,7 @@ public class AdminUserService {
     private final AdminAccountMapper adminAccountMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SystemRoleGuard systemRoleGuard;
 
     @Transactional(readOnly = true)
     public Page<AdminAccountResponse> listAccounts(AdminUserFilterRequest request) {
@@ -104,6 +107,7 @@ public class AdminUserService {
 
     @Transactional
     public void deleteAccount(Long accountId) {
+        systemRoleGuard.requireAnotherActiveAdmin(accountId);
         AccountEntity account = getAccount(accountId);
         if (account.getStatus() != 0) {
             throw new RuntimeException(
@@ -114,6 +118,10 @@ public class AdminUserService {
 
     @Transactional
     public AdminAccountResponse updateAccountStatus(Long accountId, int status) {
+        if (status != 0 && status != 1) {
+            throw new InvalidInputException("Trạng thái tài khoản phải là 0 hoặc 1");
+        }
+        if (status != 1) systemRoleGuard.requireAnotherActiveAdmin(accountId);
         AccountEntity account = getAccount(accountId);
         account.setStatus(status);
         accountRepository.save(account);

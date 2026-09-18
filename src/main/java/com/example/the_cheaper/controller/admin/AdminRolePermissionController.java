@@ -23,7 +23,7 @@ public class AdminRolePermissionController {
     private final AdminRolePermissionService adminRolePermissionService;
 
     @GetMapping("/{roleId}/permissions")
-    @PreAuthorize("hasAuthority('ROLE_PERMISSION_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_PERMISSION_READ')")
     public ResponseEntity<ApiResponse<List<AdminRolePermissionResponse>>> getPermissions(
             @PathVariable Long roleId,
             @CurrentUser AccountEntity currentUser) {
@@ -32,7 +32,7 @@ public class AdminRolePermissionController {
     }
 
     @PutMapping("/{roleId}/permissions")
-    @PreAuthorize("hasAuthority('ROLE_PERMISSION_UPDATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_PERMISSION_UPDATE')")
     public ResponseEntity<ApiResponse<List<AdminRolePermissionResponse>>> replacePermissions(
             @PathVariable Long roleId,
             @Valid @RequestBody UpdateRolePermissionsRequest request,
@@ -42,7 +42,7 @@ public class AdminRolePermissionController {
     }
 
     @PostMapping("/{roleId}/permissions/{permissionId}")
-    @PreAuthorize("hasAuthority('ROLE_PERMISSION_GRANT')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_PERMISSION_GRANT')")
     public ResponseEntity<ApiResponse<AdminRolePermissionResponse>> grantPermission(
             @PathVariable Long roleId,
             @PathVariable Long permissionId,
@@ -52,7 +52,7 @@ public class AdminRolePermissionController {
     }
 
     @DeleteMapping("/{roleId}/permissions/{permissionId}")
-    @PreAuthorize("hasAuthority('ROLE_PERMISSION_REVOKE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_PERMISSION_REVOKE')")
     public ResponseEntity<ApiResponse<Void>> revokePermission(
             @PathVariable Long roleId,
             @PathVariable Long permissionId,

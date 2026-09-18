@@ -1,0 +1,63 @@
+{
+  "commit": "0173f1ca644523b3ba95070a158f2fba616a5e87",
+  "tests": 179,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "newman": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 45,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 45,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 45,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 45,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 45,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 71,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 45,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 0,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "failureCount": 0
+  },
+  "accepted": true,
+  "problems": [],
+  "runUrl": "https://github.com/quangson2809/the_cheaper/actions/runs/35249636841",
+  "artifactUrl": "https://github.com/quangson2809/the_cheaper/actions/runs/35249636841/artifacts/10508702455",
+  "pullRequest": "https://github.com/quangson2809/the_cheaper/pull/2",
+  "scope": "Phase 6 handoff of existing Order APIs; no new payment/inventory flows; no production database migration performed"
+}

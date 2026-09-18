@@ -5,6 +5,8 @@ import com.example.the_cheaper.dto.request.admin.AdminRoleUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminRoleResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.RoleEntity;
+import com.example.the_cheaper.exception.InvalidInputException;
+import com.example.the_cheaper.service.authorization.SystemRoleGuard;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminRoleMapper;
@@ -44,6 +46,7 @@ public class AdminRoleService {
     @Transactional
     public AdminRoleResponse createRole(AdminRoleCreateRequest request, AccountEntity currentUser) {
         validateUniqueName(request.getName(), null);
+        rejectReservedName(request.getName());
 
         RoleEntity entity = roleMapper.toEntity(request);
         return roleMapper.toResponse(roleRepository.save(entity));
@@ -58,6 +61,13 @@ public class AdminRoleService {
                         "Không tìm thấy role với id: " + id));
 
         validateUniqueName(request.getName(), id);
+        if (SystemRoleGuard.isSystemRole(entity.getName())) {
+            if (!entity.getName().equals(request.getName())) {
+                throw new InvalidInputException("Không thể đổi tên system role");
+            }
+        } else {
+            rejectReservedName(request.getName());
+        }
         roleMapper.updateEntityFromRequest(request, entity);
 
         return roleMapper.toResponse(roleRepository.save(entity));
@@ -65,9 +75,10 @@ public class AdminRoleService {
 
     @Transactional
     public void deleteRole(Long id, AccountEntity currentUser) {
-        if (!roleRepository.existsById(id)) {
-            throw new ResourceNotFoundException(
-                    "Không tìm thấy role với id: " + id);
+        RoleEntity entity = roleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy role với id: " + id));
+        if (SystemRoleGuard.isSystemRole(entity.getName())) {
+            throw new InvalidInputException("Không thể xóa system role");
         }
 
         if (accountRoleRepository.existsByRoleId(id)) {
@@ -93,6 +104,12 @@ public class AdminRoleService {
         if (exists) {
             throw new ResourceAlreadyExistsException(
                     "Role '" + name + "' đã tồn tại");
+        }
+    }
+
+    private void rejectReservedName(String name) {
+        if (name != null && SystemRoleGuard.isSystemRole(name.trim())) {
+            throw new InvalidInputException("Tên role được dành riêng cho hệ thống");
         }
     }
 }

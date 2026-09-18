@@ -20,6 +20,8 @@ public interface RolePermissionRepository extends JpaRepository<RolePermissionEn
 
     Optional<RolePermissionEntity> findByRoleIdAndPermissionId(Long roleId, Long permissionId);
 
+    long deleteByRoleIdAndPermissionId(Long roleId, Long permissionId);
+
     @Query("select rp.permission from RolePermissionEntity rp where rp.role.id = :roleId")
     List<PermissionEntity> findPermissionsByRoleId(@Param("roleId") Long roleId);
 }

@@ -1,6 +1,5 @@
 package com.example.the_cheaper.security;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,10 +53,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             if (!jwtProvider.isTokenValid(token, userDetails.getUsername())) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (!userDetails.isAccountNonLocked() || !userDetails.isEnabled()) {
+                SecurityContextHolder.clearContext();
                 filterChain.doFilter(request, response);
                 return;
             }

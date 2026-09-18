@@ -3,6 +3,7 @@ HELP.md
 Context/
 # ====== Gradle ======
 .gradle/
+.phase5-tools/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
@@ -54,6 +55,7 @@ Thumbs.db
 application-*.properties
 application-*.yaml
 application-*.yml
+!src/test/resources/application-test.properties
 
 # ====== Java / Build ======
 *.class

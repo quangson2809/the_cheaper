@@ -24,7 +24,7 @@ public class AdminAccountController {
     private final AdminUserService adminUserService;
 
     @PostMapping("/accounts")
-    @PreAuthorize("hasAuthority('ACCOUNT_CREATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_CREATE')")
     public ResponseEntity<ApiResponse<AdminAccountResponse>> createAdminAccount(
             @Valid @RequestBody AdminCreateAdminRequest request) {
         AdminAccountResponse response = adminUserService.createAdminAccount(request);
@@ -33,7 +33,7 @@ public class AdminAccountController {
     }
 
     @GetMapping("/accounts")
-    @PreAuthorize("hasAuthority('ACCOUNT_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_READ')")
     public ResponseEntity<ApiResponse<Page<AdminAccountResponse>>> listAccounts(
             AdminUserFilterRequest request) {
         Page<AdminAccountResponse> response = adminUserService.listAccounts(request);
@@ -41,7 +41,7 @@ public class AdminAccountController {
     }
 
     @GetMapping("/accounts/search")
-    @PreAuthorize("hasAuthority('ACCOUNT_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_READ')")
     public ResponseEntity<ApiResponse<Page<AdminAccountResponse>>> searchAccounts(
             @RequestParam String phone,
             @RequestParam(required = false, defaultValue = "1") int page,
@@ -51,7 +51,7 @@ public class AdminAccountController {
     }
 
     @GetMapping("/accounts/{accountId}/role")
-    @PreAuthorize("hasAuthority('ACCOUNT_ROLE_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_ROLE_READ')")
     public ResponseEntity<ApiResponse<AdminAccountRoleResponse>> getAccountRole(
             @PathVariable Long accountId) {
         AdminAccountRoleResponse response = adminUserService.getAccountRole(accountId);
@@ -59,7 +59,7 @@ public class AdminAccountController {
     }
 
     @PutMapping("/accounts/{accountId}/role")
-    @PreAuthorize("hasAuthority('ACCOUNT_ROLE_UPDATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_ROLE_UPDATE')")
     public ResponseEntity<ApiResponse<AdminAccountRoleResponse>> assignAccountRole(
             @PathVariable Long accountId,
             @Valid @RequestBody AssignAccountRoleRequest request) {
@@ -68,14 +68,14 @@ public class AdminAccountController {
     }
 
     @DeleteMapping("/accounts/{accountId}")
-    @PreAuthorize("hasAuthority('ACCOUNT_DELETE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteAccount(@PathVariable Long accountId) {
         adminUserService.deleteAccount(accountId);
         return ResponseEntity.ok(ApiResponse.success(null, "Xóa tài khoản thành công"));
     }
 
     @PutMapping("/accounts/{accountId}/status")
-    @PreAuthorize("hasAuthority('ACCOUNT_STATUS_UPDATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ACCOUNT_STATUS_UPDATE')")
     public ResponseEntity<ApiResponse<AdminAccountResponse>> updateAccountStatus(
             @PathVariable Long accountId,
             @RequestParam int status) {

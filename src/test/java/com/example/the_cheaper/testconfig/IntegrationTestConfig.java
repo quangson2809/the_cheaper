@@ -1,13 +1,20 @@
 package com.example.the_cheaper.testconfig;
 
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
+import org.testcontainers.mysql.MySQLContainer;
 
 /**
- * Cấu hình chung cho Integration Test.
- * Có thể chứa các bean mock cho external services (như EmailService, S3Service)
- * để tránh call API thực tế khi chạy test.
+ * Spring owns the container lifecycle, including cached application contexts.
+ * ServiceConnection overrides the application's datasource connection details.
  */
-@TestConfiguration
+@TestConfiguration(proxyBeanMethods = false)
 public class IntegrationTestConfig {
-
+    @Bean
+    @ServiceConnection
+    MySQLContainer mysql() {
+        return new MySQLContainer("mysql:8.4")
+                .withDatabaseName("the_cheaper_test");
+    }
 }

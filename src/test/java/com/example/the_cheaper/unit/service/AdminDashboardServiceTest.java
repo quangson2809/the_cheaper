@@ -10,7 +10,6 @@ import com.example.the_cheaper.exception.NotImplementedException;
 import com.example.the_cheaper.fixtures.AccountFixtures;
 import com.example.the_cheaper.repository.OrderRepository;
 import com.example.the_cheaper.service.admin.AdminDashboardService;
-import com.example.the_cheaper.service.admin.AdminProtectedAccess;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.*;
 class AdminDashboardServiceTest {
 
     @Mock
-    private AdminProtectedAccess adminProtectedAccess;
+    private com.example.the_cheaper.repository.AccountRepository accountRepository;
 
     @Mock
     private OrderRepository orderRepository;
@@ -50,7 +49,6 @@ class AdminDashboardServiceTest {
         mockResults.add(new Object[]{5, new BigDecimal("5000.00")});
         
         when(orderRepository.getMonthlyRevenue(year)).thenReturn(mockResults);
-        doNothing().when(adminProtectedAccess).adminAccess(admin);
 
         // Act
         List<MonthlyRevenueResponse> responses = adminDashboardService.getMonthlyRevenue(year, admin);
@@ -66,7 +64,6 @@ class AdminDashboardServiceTest {
         assertThat(responses.get(4).getMonth()).isEqualTo(5);
         assertThat(responses.get(4).getRevenue()).isEqualByComparingTo("5000.00");
         
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(orderRepository).getMonthlyRevenue(year);
     }
 
@@ -82,7 +79,6 @@ class AdminDashboardServiceTest {
         mockResults.add(new Object[]{12, 500L});
         
         when(orderRepository.getMonthlySoldQuantity(year)).thenReturn(mockResults);
-        doNothing().when(adminProtectedAccess).adminAccess(admin);
 
         // Act
         List<MonthlyQuantityResponse> responses = adminDashboardService.getMonthlySoldQuantity(year, admin);
@@ -97,7 +93,6 @@ class AdminDashboardServiceTest {
         
         assertThat(responses.get(5).getQuantity()).isEqualTo(0L);
         
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(orderRepository).getMonthlySoldQuantity(year);
     }
 
@@ -113,7 +108,6 @@ class AdminDashboardServiceTest {
         mockResults.add(new Object[]{OrderStatus.PENDING, 50L});    // 25%
         
         when(orderRepository.getOrderStatusCounts()).thenReturn(mockResults);
-        doNothing().when(adminProtectedAccess).adminAccess(admin);
 
         // Act
         List<OrderStatusRatioResponse> responses = adminDashboardService.getOrderStatusRatios(admin);
@@ -121,11 +115,11 @@ class AdminDashboardServiceTest {
         // Assert
         assertThat(responses).hasSize(2);
         
-        OrderStatusRatioResponse completedRatio = responses.stream()
-                .filter(r -> r.getStatus().equals("COMPLETED"))
+        OrderStatusRatioResponse deliveredRatio = responses.stream()
+                .filter(r -> r.getStatus().equals("DELIVERED"))
                 .findFirst().orElseThrow();
-        assertThat(completedRatio.getCount()).isEqualTo(150L);
-        assertThat(completedRatio.getPercentage()).isEqualTo(75.0);
+        assertThat(deliveredRatio.getCount()).isEqualTo(150L);
+        assertThat(deliveredRatio.getPercentage()).isEqualTo(75.0);
         
         OrderStatusRatioResponse pendingRatio = responses.stream()
                 .filter(r -> r.getStatus().equals("PENDING"))
@@ -133,7 +127,6 @@ class AdminDashboardServiceTest {
         assertThat(pendingRatio.getCount()).isEqualTo(50L);
         assertThat(pendingRatio.getPercentage()).isEqualTo(25.0);
         
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(orderRepository).getOrderStatusCounts();
     }
 }

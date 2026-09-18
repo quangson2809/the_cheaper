@@ -119,7 +119,8 @@ class AuthServiceTest {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
         AccountEntity account = AccountFixtures.createActiveUserAccount();
-        CustomUserDetails userDetails = new CustomUserDetails(account);
+        CustomUserDetails userDetails = new CustomUserDetails(account,
+                CustomUserDetails.authorities("USER", java.util.List.of()));
         
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(userDetails);

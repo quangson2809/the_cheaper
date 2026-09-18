@@ -24,7 +24,7 @@ public class AdminPermissionController {
     private final AdminPermissionService adminPermissionService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERMISSION_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('PERMISSION_READ')")
     public ResponseEntity<ApiResponse<Page<AdminPermissionResponse>>> listPermissions(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -34,7 +34,7 @@ public class AdminPermissionController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERMISSION_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('PERMISSION_READ')")
     public ResponseEntity<ApiResponse<AdminPermissionResponse>> getPermission(
             @PathVariable Long id,
             @CurrentUser AccountEntity currentUser) {
@@ -43,7 +43,7 @@ public class AdminPermissionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PERMISSION_CREATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('PERMISSION_CREATE')")
     public ResponseEntity<ApiResponse<AdminPermissionResponse>> createPermission(
             @Valid @RequestBody AdminPermissionCreateRequest request,
             @CurrentUser AccountEntity currentUser) {
@@ -52,7 +52,7 @@ public class AdminPermissionController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERMISSION_UPDATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('PERMISSION_UPDATE')")
     public ResponseEntity<ApiResponse<AdminPermissionResponse>> updatePermission(
             @PathVariable Long id,
             @Valid @RequestBody AdminPermissionUpdateRequest request,
@@ -62,7 +62,7 @@ public class AdminPermissionController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERMISSION_DELETE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('PERMISSION_DELETE')")
     public ResponseEntity<ApiResponse<Void>> deletePermission(
             @PathVariable Long id,
             @CurrentUser AccountEntity currentUser) {

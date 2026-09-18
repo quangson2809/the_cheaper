@@ -11,7 +11,6 @@ import com.example.the_cheaper.mapper.admin.AdminPermissionMapper;
 import com.example.the_cheaper.repository.PermissionRepository;
 import com.example.the_cheaper.repository.RolePermissionRepository;
 import com.example.the_cheaper.service.admin.AdminPermissionService;
-import com.example.the_cheaper.service.admin.AdminProtectedAccess;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,9 +35,6 @@ class AdminPermissionServiceTest {
 
     @Mock
     private AdminPermissionMapper permissionMapper;
-
-    @Mock
-    private AdminProtectedAccess adminProtectedAccess;
 
     @InjectMocks
     private AdminPermissionService adminPermissionService;
@@ -75,7 +71,6 @@ class AdminPermissionServiceTest {
                 adminPermissionService.createPermission(request, admin);
 
         assertThat(result).isEqualTo(response);
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(permissionRepository).save(entity);
     }
 
@@ -110,7 +105,6 @@ class AdminPermissionServiceTest {
         AdminPermissionResponse result = adminPermissionService.getPermission(1L, admin);
 
         assertThat(result).isEqualTo(response);
-        verify(adminProtectedAccess).adminAccess(admin);
     }
 
     @Test
@@ -152,12 +146,11 @@ class AdminPermissionServiceTest {
     @DisplayName("deletePermission - should delete existing unassigned permission")
     void deletePermission_ShouldDeleteExisting() {
         AccountEntity admin = new AccountEntity();
-        when(permissionRepository.existsById(1L)).thenReturn(true);
+        when(permissionRepository.findById(1L)).thenReturn(Optional.of(PermissionEntity.builder().id(1L).code("CUSTOM_PERMISSION").build()));
         when(rolePermissionRepository.existsByPermissionId(1L)).thenReturn(false);
 
         adminPermissionService.deletePermission(1L, admin);
 
-        verify(adminProtectedAccess).adminAccess(admin);
         verify(permissionRepository).deleteById(1L);
     }
 
@@ -165,7 +158,7 @@ class AdminPermissionServiceTest {
     @DisplayName("deletePermission - should reject permission assigned to a role")
     void deletePermission_ShouldRejectAssignedPermission() {
         AccountEntity admin = new AccountEntity();
-        when(permissionRepository.existsById(1L)).thenReturn(true);
+        when(permissionRepository.findById(1L)).thenReturn(Optional.of(PermissionEntity.builder().id(1L).code("CUSTOM_PERMISSION").build()));
         when(rolePermissionRepository.existsByPermissionId(1L)).thenReturn(true);
 
         assertThatThrownBy(() -> adminPermissionService.deletePermission(1L, admin))
