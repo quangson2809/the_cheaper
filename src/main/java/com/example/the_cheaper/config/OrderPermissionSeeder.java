@@ -26,43 +26,8 @@ public class OrderPermissionSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        findOrCreatePermission(
-                "ORDER_READ",
-                "Xem toàn bộ đơn hàng",
-                "Xem danh sách và chi tiết đơn hàng trong hệ thống");
-        findOrCreatePermission(
-                "ORDER_UPDATE",
-                "Cập nhật đơn hàng (legacy)",
-                "Quyền cập nhật đơn hàng cũ, giữ lại để tương thích trong giai đoạn chuyển đổi");
-        findOrCreatePermission(
-                "ORDER_CONFIRM",
-                "Xác nhận đơn hàng",
-                "Xác nhận đơn và kết quả giao hàng thành công hoặc thất bại");
-        findOrCreatePermission(
-                "ORDER_CANCEL",
-                "Hủy đơn hàng",
-                "Hủy đơn hàng trong hệ thống khi trạng thái nghiệp vụ cho phép");
-        findOrCreatePermission(
-                "ORDER_DELIVERY_UPDATE",
-                "Cập nhật giao hàng",
-                "Chuyển đơn hàng sang trạng thái đang giao");
-        findOrCreatePermission(
-                "ORDER_PAYMENT_COLLECT",
-                "Ghi nhận thu tiền COD",
-                "Ghi nhận nhân viên đã thu tiền COD của đơn hàng");
-
-        findOrCreatePermission(
-                "USER_ORDER_READ",
-                "Xem đơn hàng của mình",
-                "Xem danh sách và chi tiết đơn hàng thuộc tài khoản hiện tại");
-        findOrCreatePermission(
-                "USER_ORDER_CREATE",
-                "Tạo đơn hàng",
-                "Tạo đơn hàng từ tài khoản hiện tại");
-        findOrCreatePermission(
-                "USER_ORDER_CANCEL",
-                "Hủy đơn hàng của mình",
-                "Hủy đơn hàng thuộc tài khoản hiện tại khi trạng thái cho phép");
+        PermissionCatalog.DEFINITIONS.forEach(definition -> findOrCreatePermission(
+                definition.code(), definition.name(), definition.description()));
     }
 
     /**

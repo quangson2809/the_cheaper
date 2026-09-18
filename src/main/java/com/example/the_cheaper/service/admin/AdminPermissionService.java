@@ -5,6 +5,8 @@ import com.example.the_cheaper.dto.request.admin.AdminPermissionUpdateRequest;
 import com.example.the_cheaper.dto.response.admin.AdminPermissionResponse;
 import com.example.the_cheaper.entity.AccountEntity;
 import com.example.the_cheaper.entity.PermissionEntity;
+import com.example.the_cheaper.config.PermissionCatalog;
+import com.example.the_cheaper.exception.InvalidInputException;
 import com.example.the_cheaper.exception.ResourceAlreadyExistsException;
 import com.example.the_cheaper.exception.ResourceNotFoundException;
 import com.example.the_cheaper.mapper.admin.AdminPermissionMapper;
@@ -56,6 +58,9 @@ public class AdminPermissionService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Không tìm thấy permission với id: " + id));
 
+        if (PermissionCatalog.CODES.contains(entity.getCode()) && !entity.getCode().equals(request.getCode())) {
+            throw new InvalidInputException("Không thể đổi code của permission hệ thống");
+        }
         validateUnique(request.getName(), request.getCode(), id);
         permissionMapper.updateEntityFromRequest(request, entity);
 
@@ -64,9 +69,10 @@ public class AdminPermissionService {
 
     @Transactional
     public void deletePermission(Long id, AccountEntity currentUser) {
-        if (!permissionRepository.existsById(id)) {
-            throw new ResourceNotFoundException(
-                    "Không tìm thấy permission với id: " + id);
+        PermissionEntity permission = permissionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy permission với id: " + id));
+        if (PermissionCatalog.CODES.contains(permission.getCode())) {
+            throw new InvalidInputException("Không thể xóa permission hệ thống; hãy thu hồi liên kết role-permission");
         }
 
         if (rolePermissionRepository.existsByPermissionId(id)) {

@@ -3,7 +3,11 @@
 Java 17, Spring Boot 4.0.3, Gradle wrapper 9.3.1, MySQL. Nhánh bàn giao:
 `feature/order-rbac-refactor`; nhánh đích PR: `main`.
 
-Phạm vi đã nghiệm thu là phân quyền và hành vi **API Order hiện có**. Không coi
+Cập nhật sau Phase 6: [đồng bộ backend RBAC](docs/rbac/BACKEND_RBAC_SYNC.md) bổ sung
+dashboard, catalog, invariant system role và API quyền hiệu lực. Chưa nghiệm thu
+full suite bản sửa mới trong môi trường thiếu Docker.
+
+Phạm vi đã nghiệm thu trước bản sửa này là phân quyền và hành vi **API Order hiện có**. Không coi
 nhánh này là bản hoàn thiện chu trình COD hoặc RBAC toàn hệ thống. Đọc
 [bàn giao và điều kiện merge](docs/rbac/PHASE6_HANDOFF.md) trước khi triển khai.
 

@@ -90,6 +90,8 @@ public class OrderService {
                     "Còn lại: " + variant.getStock() + ", yêu cầu: " + orderedQty);
         }
 
+        // TODO BIZ-04/05/06: define reservation, compensation and sold lifecycle together.
+        // Baseline only: cancellation does not reverse these counters; see BACKEND_RBAC_SYNC.md.
         variant.setStock(variant.getStock() - orderedQty);
         variant.setSold(variant.getSold() + orderedQty);
         productVariantRepository.save(variant);
@@ -118,6 +120,7 @@ public class OrderService {
     }
 
     private int processPaymentStatus(String paymentMethodCode) {
+        // TODO BIZ-01: gateway verification/idempotency required before changing this baseline.
         return "COD".equals(paymentMethodCode) ? 0 : 1;
     }
 

@@ -26,8 +26,9 @@ role và không bảo đảm là role có quyền cao nhất. Hai AccountMapper 
 này từ accountRoles để giữ DTO cũ sau khi Account.role đã bị bỏ. Backend không dùng
 chuỗi trong response đó để quyết định quyền Order.
 
-Access JWT không chứa danh sách permission. Chưa có endpoint quyền hiệu lực riêng
-cho frontend trong phạm vi bàn giao; cần chốt API này khi triển khai UI phân quyền.
+Access JWT không chứa danh sách permission. Dùng `GET /api/auth/me/authorities`
+để lấy `roles` và `permissions` hiệu lực của principal hiện tại. Xem
+[contract và migration](../rbac/BACKEND_RBAC_SYNC.md).
 Không tự suy tất cả permission từ `role` hoặc giải mã JWT rồi coi đó là danh mục
 quyền. Không dùng API quản lý role đặc quyền như API quyền cá nhân thay thế.
 

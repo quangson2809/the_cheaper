@@ -2,6 +2,9 @@ package com.example.the_cheaper.repository;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.List;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 
 import com.example.the_cheaper.entity.AccountEntity;
 import org.springframework.data.domain.Page;
@@ -12,6 +15,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from AccountEntity a join a.accountRoles ar where ar.role.id = :roleId and a.status = 1 order by a.id")
+    List<AccountEntity> lockActiveAccountsByRole(@Param("roleId") Long roleId);
 
     @EntityGraph(attributePaths = "accountRoles.role")
     Optional<AccountEntity> findByEmail(String email);

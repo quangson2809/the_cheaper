@@ -54,9 +54,11 @@ Test optimistic locking chạy qua các transaction riêng, tự xóa bản ghi 
 - Kiểm tra chữ ký phương thức trong OrderAuthorizationAnnotationTest được sửa.
 - Các assertion vào lớp AdminProtectedAccess đã bị xóa khỏi production được thay bằng kiểm thử
   service theo trách nhiệm dữ liệu và kiểm thử Spring method-security thực trên Permission/RolePermission controller.
-- Test dashboard là test tính toán. Thiếu authorization ở dashboard là vấn đề được ghi riêng,
-  không được coi là đã khắc phục trong Phase 2.
+- Test dashboard tính toán chạy dưới principal ADMIN; test JWT mới kiểm tra cả bốn endpoint,
+  grant/revoke, USER/staff/ADMIN, khóa tài khoản và defense-in-depth ở service.
 - Integration test checkout hiện ghi nhận hành vi baseline, chưa xác nhận quy tắc xuất kho/sold mới.
+
+Bản sửa sau Phase 6: xem [ma trận RBAC bổ sung và trạng thái chạy](rbac/BACKEND_RBAC_SYNC.md).
 
 ## Tài liệu tham chiếu
 

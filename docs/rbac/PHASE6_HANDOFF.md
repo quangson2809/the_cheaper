@@ -1,5 +1,8 @@
 # Phase 6 — rà soát, bàn giao và chuẩn bị merge
 
+> Tài liệu này lưu kết quả Phase 6 trước bản sửa. Trạng thái RBAC-01/02/03 và UI-01
+> hiện tại xem [đồng bộ backend RBAC](BACKEND_RBAC_SYNC.md); CI cũ không nghiệm thu thay đổi mới.
+
 Nhánh nguồn `feature/order-rbac-refactor`, đích `main`. Rà soát bắt đầu từ `286e0ad`;
 main đối chiếu là `4c030fb`. Phạm vi: phân quyền API Order hiện có, kế thừa quyết
 định Phase 1 và việc giữ phạm vi đã xác nhận ở Phase 5. Không mở rộng nghiệp vụ mới.

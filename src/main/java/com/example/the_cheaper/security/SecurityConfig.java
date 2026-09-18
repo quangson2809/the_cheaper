@@ -50,6 +50,7 @@ public class SecurityConfig {
                                     LocalDateTime.now(), request.getRequestURI()));
                         }))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/me/authorities").authenticated()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

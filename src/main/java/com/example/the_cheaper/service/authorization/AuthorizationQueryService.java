@@ -1,6 +1,7 @@
 package com.example.the_cheaper.service.authorization;
 
 import com.example.the_cheaper.config.Shared;
+import com.example.the_cheaper.dto.response.auth.AuthoritiesResponse;
 import com.example.the_cheaper.entity.PermissionEntity;
 import com.example.the_cheaper.repository.AccountRoleRepository;
 import com.example.the_cheaper.repository.PermissionRepository;
@@ -20,6 +21,18 @@ public class AuthorizationQueryService {
     private final AccountRoleRepository accountRoleRepository;
     private final PermissionRepository permissionRepository;
 
+    public AuthoritiesResponse findEffectiveAuthorities(Long accountId) {
+        var roles = accountRoleRepository.findRoleNamesByAccountId(accountId).stream()
+                .filter(role -> role != null && !role.isBlank())
+                .map(role -> Shared.ADMIN_ROLE.equalsIgnoreCase(role) ? Shared.ADMIN_ROLE : role)
+                .distinct().sorted().toList();
+        var roleAuthorities = roles.stream().map(role -> "ROLE_" + role).collect(java.util.stream.Collectors.toSet());
+        // ROLE_PERMISSION_* are permission codes, not role authorities. Do not filter by prefix.
+        var permissions = findAuthorities(accountId).stream()
+                .filter(authority -> !roleAuthorities.contains(authority)).sorted().toList();
+        return new AuthoritiesResponse(roles, permissions);
+    }
+
     public Set<String> findAuthorities(Long accountId) {
         Set<String> authorities = new HashSet<>();
 
@@ -29,7 +42,7 @@ public class AuthorizationQueryService {
                 .toList();
 
         roleNames.stream()
-                .map(role -> "ROLE_" + role)
+                .map(role -> "ROLE_" + (Shared.ADMIN_ROLE.equalsIgnoreCase(role) ? Shared.ADMIN_ROLE : role))
                 .forEach(authorities::add);
 
         boolean isAdmin = roleNames.stream()

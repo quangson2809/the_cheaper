@@ -25,7 +25,7 @@ public class AdminRoleController {
     private final AdminRoleService adminRoleService;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_READ')")
     public ResponseEntity<ApiResponse<List<AdminRoleResponse>>> listRoles(
             @CurrentUser AccountEntity currentUser) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -34,7 +34,7 @@ public class AdminRoleController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_READ')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_READ')")
     public ResponseEntity<ApiResponse<AdminRoleResponse>> getRole(
             @PathVariable Long id,
             @CurrentUser AccountEntity currentUser) {
@@ -44,7 +44,7 @@ public class AdminRoleController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_CREATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_CREATE')")
     public ResponseEntity<ApiResponse<AdminRoleResponse>> createRole(
             @Valid @RequestBody AdminRoleCreateRequest request,
             @CurrentUser AccountEntity currentUser) {
@@ -54,7 +54,7 @@ public class AdminRoleController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_UPDATE')")
     public ResponseEntity<ApiResponse<AdminRoleResponse>> updateRole(
             @PathVariable Long id,
             @Valid @RequestBody AdminRoleUpdateRequest request,
@@ -65,7 +65,7 @@ public class AdminRoleController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_DELETE')")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('ROLE_DELETE')")
     public ResponseEntity<ApiResponse<Void>> deleteRole(
             @PathVariable Long id,
             @CurrentUser AccountEntity currentUser) {

@@ -114,7 +114,7 @@ class AdminRoleServiceTest {
     @Test
     void deleteRole_ShouldRejectWhenAssignedToAccount() {
         AccountEntity admin = new AccountEntity();
-        when(roleRepository.existsById(2L)).thenReturn(true);
+        when(roleRepository.findById(2L)).thenReturn(Optional.of(RoleEntity.builder().id(2L).name("STAFF").build()));
         when(accountRoleRepository.existsByRoleId(2L)).thenReturn(true);
 
         assertThatThrownBy(() -> service.deleteRole(2L, admin))
@@ -126,7 +126,7 @@ class AdminRoleServiceTest {
     @Test
     void deleteRole_ShouldRejectWhenRoleHasPermissions() {
         AccountEntity admin = new AccountEntity();
-        when(roleRepository.existsById(2L)).thenReturn(true);
+        when(roleRepository.findById(2L)).thenReturn(Optional.of(RoleEntity.builder().id(2L).name("STAFF").build()));
         when(accountRoleRepository.existsByRoleId(2L)).thenReturn(false);
         when(rolePermissionRepository.existsByRoleId(2L)).thenReturn(true);
 
@@ -139,7 +139,7 @@ class AdminRoleServiceTest {
     @Test
     void deleteRole_ShouldDeleteUnusedRole() {
         AccountEntity admin = new AccountEntity();
-        when(roleRepository.existsById(2L)).thenReturn(true);
+        when(roleRepository.findById(2L)).thenReturn(Optional.of(RoleEntity.builder().id(2L).name("STAFF").build()));
         when(accountRoleRepository.existsByRoleId(2L)).thenReturn(false);
         when(rolePermissionRepository.existsByRoleId(2L)).thenReturn(false);
 

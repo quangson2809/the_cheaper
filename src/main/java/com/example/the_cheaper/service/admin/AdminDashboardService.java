@@ -1,5 +1,6 @@
 package com.example.the_cheaper.service.admin;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.example.the_cheaper.dto.request.common.SearchRequest;
 import com.example.the_cheaper.dto.response.admin.AdminDashboardResponse;
 import com.example.the_cheaper.dto.response.admin.MonthlyQuantityResponse;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') or hasAuthority('DASHBOARD_READ')")
 public class AdminDashboardService {
 
     private final AccountRepository accountRepository;

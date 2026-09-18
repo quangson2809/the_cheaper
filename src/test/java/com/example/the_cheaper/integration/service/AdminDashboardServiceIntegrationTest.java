@@ -19,6 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
 @Transactional
 class AdminDashboardServiceIntegrationTest extends com.example.the_cheaper.testconfig.MySqlIntegrationTest {
 

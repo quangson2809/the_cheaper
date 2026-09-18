@@ -46,6 +46,8 @@ class Phase5RestartIntegrationTest {
                         app.getBean(AccountRepository.class).findByEmail("an.nguyen@gmail.com").orElseThrow());
                 var mvc = mvc(app);
                 mvc.perform(get("/api/orders").header("Authorization", token)).andExpect(status().isOk());
+                assertCatalog(db);
+                mvc.perform(get("/api/admin/stats?year=2026").header("Authorization", token)).andExpect(status().isForbidden());
                 // Legacy database: nullable versions + forbidden USER grants + missing catalog entry.
                 db.execute("alter table product_variants modify version bigint null");
                 db.update("update product_variants set version=null");
@@ -63,12 +65,28 @@ class Phase5RestartIntegrationTest {
                 long collect = id(db, "select id from permissions where code='ORDER_PAYMENT_COLLECT'");
                 db.update("delete from role_permissions where permission_id=?", collect);
                 db.update("delete from permissions where id=?", collect);
+                for (String code : List.of("DASHBOARD_READ", "ROLE_PERMISSION_READ", "ROLE_PERMISSION_UPDATE",
+                        "ROLE_PERMISSION_GRANT", "ROLE_PERMISSION_REVOKE", "ACCOUNT_ROLE_READ", "ACCOUNT_ROLE_UPDATE", "ACCOUNT_STATUS_UPDATE")) {
+                    long permissionId = id(db, "select id from permissions where code='" + code + "'");
+                    db.update("insert into role_permissions(role_id,permission_id) values (?,?)", staffRole, permissionId);
+                    db.update("delete from role_permissions where role_id=? and permission_id=?", staffRole, permissionId);
+                }
+                db.update("insert into roles(name) values ('SYNC_LEGACY')");
+                long legacyRole = id(db, "select id from roles where name='SYNC_LEGACY'");
+                db.update("insert into account_roles(account_id,role_id) values (?,?)", accountId, legacyRole);
+                for (String code : List.of("ROLE_ASSIGN_PERMISSION", "ACCOUNT_ASSIGN_ROLE")) {
+                    db.update("insert into role_permissions(role_id,permission_id) values (?,?)", legacyRole,
+                            id(db, "select id from permissions where code='" + code + "'"));
+                }
+                // Exercise an existing installation missing a newly canonical code, too.
+                db.update("delete from permissions where code='DASHBOARD_READ'");
                 // Business state excludes versions, which are intentionally migrated from null to 0.
                 stable = businessSnapshot(db);
             }
             for (int restart = 0; restart < 2; restart++) {
                 try (var app = start(mysql, "update")) {
                     var db = app.getBean(JdbcTemplate.class);
+                    assertCatalog(db);
                     assertThat(businessSnapshot(db)).isEqualTo(stable);
                     assertThat(id(db, "select count(*) from orders where version is null")).isZero();
                     assertThat(id(db, "select count(*) from product_variants where version is null")).isZero();
@@ -76,7 +94,13 @@ class Phase5RestartIntegrationTest {
                     assertThat(id(db, "select count(*) from role_permissions rp join permissions p on p.id=rp.permission_id where rp.role_id="
                             + userRole + " and p.code like 'ORDER_%'")).isZero();
                     assertThat(id(db, "select count(*) from role_permissions rp join roles r on r.id=rp.role_id where r.name='P5_STAFF'")).isZero();
+                    assertThat(id(db, "select count(*) from role_permissions rp join roles r on r.id=rp.role_id where r.name='SYNC_LEGACY'")).isEqualTo(2);
                     var mvc = mvc(app);
+                    mvc.perform(get("/api/admin/stats?year=2026").header("Authorization", token)).andExpect(status().isForbidden());
+                    mvc.perform(get("/api/admin/roles/{id}/permissions", userRole).header("Authorization", token)).andExpect(status().isForbidden());
+                    mvc.perform(put("/api/admin/accounts/{id}/role", accountId).header("Authorization", token)
+                            .contentType("application/json").content("{\"roleId\":" + userRole + "}"))
+                            .andExpect(status().isForbidden());
                     mvc.perform(get("/api/orders").header("Authorization", token)).andExpect(status().isOk());
                     mvc.perform(patch("/api/admin/orders/{id}/status", targetOrder).header("Authorization", token)
                             .contentType("application/json").content("{\"status\":\"PROCESSING\"}"))
@@ -85,6 +109,10 @@ class Phase5RestartIntegrationTest {
                 }
             }
         }
+    }
+    private void assertCatalog(JdbcTemplate db) {
+        assertThat(db.queryForList("select code from permissions", String.class))
+                .containsAll(com.example.the_cheaper.config.PermissionCatalog.CODES);
     }
     private ConfigurableApplicationContext start(MySQLContainer mysql, String ddl) {
         // Explicit test-only config location prevents reading developer DB/mail credentials.

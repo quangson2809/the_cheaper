@@ -25,10 +25,10 @@ an toàn. Chúng có từ nền tảng hiện tại, không phải đã được
 
 | ID | Bằng chứng code / ảnh hưởng | Việc cần làm; trạng thái |
 |---|---|---|
-| RBAC-01 Dashboard | AdminDashboardController và AdminDashboardService không có kiểm tra quyền; SecurityConfig chỉ yêu cầu đăng nhập cho đường này | Chốt quyền dashboard và bổ sung test JWT/403; chưa bắt đầu. Là rủi ro đọc dữ liệu vượt phạm vi ngoài API Order |
-| RBAC-02 Role ADMIN | AdminRoleService.updateRole không bảo vệ tên ADMIN; quyền ROLE_UPDATE có thể đổi tên role hệ thống. Delete có chặn role đang liên kết nhưng không có invariant riêng ADMIN | Chốt bảo vệ role hệ thống/ADMIN cuối cùng, delegation/escalation và test; chưa bắt đầu |
-| RBAC-03 Catalog quản trị | Controller dùng ROLE_PERMISSION_READ/UPDATE/GRANT/REVOKE, ACCOUNT_ROLE_READ/UPDATE, ACCOUNT_STATUS_UPDATE; DataSeeder còn ROLE_ASSIGN_PERMISSION/ACCOUNT_ASSIGN_ROLE | Chuẩn hóa mã và kế hoạch chuyển quyền riêng; chưa bắt đầu. Đừng giả định API quản lý quyền hoạt động chỉ vì Order đã đạt |
-| UI-01 Quyền hiệu lực | AuthResponse.role và Account DTO chỉ một role; không có endpoint riêng trả tập quyền hiện tại | Chốt API quyền hiệu lực và cập nhật frontend; chưa bắt đầu |
+| RBAC-01 Dashboard | Đã thêm DASHBOARD_READ ở controller/service, test JWT bốn endpoint | Đã triển khai; chờ full suite có Docker. Xem [bản sửa](BACKEND_RBAC_SYNC.md) |
+| RBAC-02 Role ADMIN | Chặn đổi tên/xóa ADMIN và USER, khóa/xóa admin hoạt động cuối cùng; kiểm tra đồng thời | Đã triển khai; chờ integration MySQL. Chính sách delegation/escalation tổng quát vẫn ngoài scope |
+| RBAC-03 Catalog quản trị | Catalog dùng chung, giữ legacy inert, mapping xét duyệt thủ công, không cấp lại staff | Đã triển khai; chờ test restart MySQL. Xem [migration](BACKEND_RBAC_SYNC.md) |
+| UI-01 Quyền hiệu lực | Đã có GET /api/auth/me/authorities cho union roles/permissions | Backend đã triển khai; frontend cần tích hợp, test JWT chờ môi trường Docker |
 | OPS-01 Cấu hình triển khai | application.properties giữ cấu hình phát triển; DataSeeder mặc định có fixture tài khoản mẫu trên DB trống | Tách cấu hình/secret và bootstrap production, thay khóa và credential nếu từng dùng thật; chưa bắt đầu |
 | OPS-02 Migration tổng quát | Hibernate update + reconciler; CI chỉ mô phỏng schema cũ và startup tuần tự | Diễn tập backup/restore và migration trên bản sao môi trường; chưa bắt đầu với DB thật |
 | API-01 Retry/version client | Có optimistic locking DB, chưa có expected-version/If-Match/idempotency key | Chốt tránh ý định ghi từ UI cũ và checkout trùng; chưa bắt đầu |
