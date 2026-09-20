@@ -1,94 +1,13 @@
 name: Apply module structure refactor
 
 on:
-  push:
-    branches:
-      - refactor/package-by-module
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    if: ${{ !contains(github.event.head_commit.message, '[module-refactor-applied]') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: refactor/package-by-module
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Apply deterministic package migration
-        run: python3 scripts/refactor_package_by_module.py
-
-      - name: Compile main source with baseline compatibility shim
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import subprocess
-
-          specs = [
-              (
-                  "src/main/java/com/example/the_cheaper/mapper/user/UserAccountMapper.java",
-                  Path("src/main/java/com/example/the_cheaper/account/mapper/user/UserAccountMapper.java"),
-                  {
-                      "package com.example.the_cheaper.mapper.user;": "package com.example.the_cheaper.account.mapper.user;",
-                      "com.example.the_cheaper.dto.response.user.UserAccountResponse": "com.example.the_cheaper.account.dto.response.user.UserAccountResponse",
-                      "com.example.the_cheaper.entity.AccountEntity": "com.example.the_cheaper.account.entity.AccountEntity",
-                      "com.example.the_cheaper.entity.AccountRoleEntity": "com.example.the_cheaper.rbac.entity.AccountRoleEntity",
-                  },
-              ),
-              (
-                  "src/main/java/com/example/the_cheaper/mapper/admin/AdminAccountMapper.java",
-                  Path("src/main/java/com/example/the_cheaper/account/mapper/admin/AdminAccountMapper.java"),
-                  {
-                      "package com.example.the_cheaper.mapper.admin;": "package com.example.the_cheaper.account.mapper.admin;",
-                      "com.example.the_cheaper.dto.response.admin.AdminAccountResponse": "com.example.the_cheaper.account.dto.response.admin.AdminAccountResponse",
-                      "com.example.the_cheaper.entity.AccountEntity": "com.example.the_cheaper.account.entity.AccountEntity",
-                      "com.example.the_cheaper.entity.AccountRoleEntity": "com.example.the_cheaper.rbac.entity.AccountRoleEntity",
-                  },
-              ),
-          ]
-          for index, (source, target, replacements) in enumerate(specs):
-              Path(f"/tmp/account-mapper-{index}.java").write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
-              content = subprocess.check_output(
-                  ["git", "show", f"origin/feature/order-rbac-refactor:{source}"],
-                  text=True,
-              )
-              for old, new in replacements.items():
-                  content = content.replace(old, new)
-              target.write_text(content, encoding="utf-8")
-
-          order_controller = Path("src/main/java/com/example/the_cheaper/order/controller/user/UserOrderController.java")
-          Path("/tmp/user-order-controller.java").write_text(order_controller.read_text(encoding="utf-8"), encoding="utf-8")
-          content = order_controller.read_text(encoding="utf-8")
-          content = content.replace(
-              "String role = currentUser.getRole() != null ? currentUser.getRole().getName() : null;",
-              "String role = currentUser.getAccountRoles().stream().map(ar -> ar.getRole().getName()).findFirst().orElse(null);",
-          )
-          order_controller.write_text(content, encoding="utf-8")
-          PY
-          bash gradlew compileJava --no-daemon --console=plain
-          cp /tmp/account-mapper-0.java src/main/java/com/example/the_cheaper/account/mapper/user/UserAccountMapper.java
-          cp /tmp/account-mapper-1.java src/main/java/com/example/the_cheaper/account/mapper/admin/AdminAccountMapper.java
-          cp /tmp/user-order-controller.java src/main/java/com/example/the_cheaper/order/controller/user/UserOrderController.java
-
-      - name: Structural checks
-        run: |
-          git diff --check
-          test -z "$(find src/main/java/com/example/the_cheaper/controller src/main/java/com/example/the_cheaper/dto src/main/java/com/example/the_cheaper/entity src/main/java/com/example/the_cheaper/mapper src/main/java/com/example/the_cheaper/repository src/main/java/com/example/the_cheaper/service -type f -name '*.java' 2>/dev/null || true)"
-
-      - name: Commit refactor
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "refactor(structure): organize backend by module [module-refactor-applied]"
-          git push origin HEAD:refactor/package-by-module
+      - run: echo "Migration already applied on refactor/package-by-module. Keep this workflow manual-only for audit/replay."

@@ -1,0 +1,44 @@
+name: Verify module structure
+
+on:
+  push:
+    branches:
+      - refactor/package-by-module
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Compile production source
+        run: bash gradlew compileJava --no-daemon --console=plain
+
+      - name: Structural audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          for dir in controller dto entity mapper repository service exception external annotation; do
+            if [ -d "src/main/java/com/example/the_cheaper/$dir" ] && find "src/main/java/com/example/the_cheaper/$dir" -type f -name '*.java' | grep -q .; then
+              echo "Legacy top-level package still contains Java: $dir"
+              exit 1
+            fi
+          done
+
+          if rg -n 'com\.example\.the_cheaper\.(controller|dto|entity|mapper|repository|service|exception|external|annotation)\.' src/main/java; then
+            echo "Legacy package import/reference remains in production source"
+            exit 1
+          fi
+
+          git diff --check HEAD^ HEAD
