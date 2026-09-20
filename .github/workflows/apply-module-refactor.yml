@@ -29,7 +29,7 @@ jobs:
         run: python3 scripts/refactor_package_by_module.py
 
       - name: Compile main and tests
-        run: ./gradlew compileJava compileTestJava --no-daemon --console=plain
+        run: bash gradlew compileJava compileTestJava --no-daemon --console=plain
 
       - name: Structural checks
         run: |
