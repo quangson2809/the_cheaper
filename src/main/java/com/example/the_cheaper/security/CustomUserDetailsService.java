@@ -1,8 +1,8 @@
 package com.example.the_cheaper.security;
 
-import com.example.the_cheaper.entity.AccountEntity;
-import com.example.the_cheaper.repository.AccountRepository;
-import com.example.the_cheaper.service.authorization.AuthorizationQueryService;
+import com.example.the_cheaper.account.entity.AccountEntity;
+import com.example.the_cheaper.account.repository.AccountRepository;
+import com.example.the_cheaper.rbac.service.AuthorizationQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

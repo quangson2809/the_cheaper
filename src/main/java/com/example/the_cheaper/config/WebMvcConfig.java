@@ -1,5 +1,7 @@
 package com.example.the_cheaper.config;
 
+
+import com.example.the_cheaper.account.entity.AccountEntity;
 import com.example.the_cheaper.security.CurrentUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

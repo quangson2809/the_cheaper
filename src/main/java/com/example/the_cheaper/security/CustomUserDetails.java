@@ -1,6 +1,6 @@
 package com.example.the_cheaper.security;
 
-import com.example.the_cheaper.entity.AccountEntity;
+import com.example.the_cheaper.account.entity.AccountEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

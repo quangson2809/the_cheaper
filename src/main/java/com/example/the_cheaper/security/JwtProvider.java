@@ -1,6 +1,6 @@
 package com.example.the_cheaper.security;
 
-import com.example.the_cheaper.entity.AccountEntity;
+import com.example.the_cheaper.account.entity.AccountEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

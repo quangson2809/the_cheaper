@@ -1,7 +1,9 @@
 package com.example.the_cheaper.security;
 
-import com.example.the_cheaper.annotation.CurrentUser;
-import com.example.the_cheaper.entity.AccountEntity;
+
+import com.example.the_cheaper.config.WebMvcConfig;
+import com.example.the_cheaper.security.CurrentUser;
+import com.example.the_cheaper.account.entity.AccountEntity;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
