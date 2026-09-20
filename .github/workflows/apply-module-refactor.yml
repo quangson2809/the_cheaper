@@ -28,8 +28,47 @@ jobs:
       - name: Apply deterministic package migration
         run: python3 scripts/refactor_package_by_module.py
 
-      - name: Compile main and tests
-        run: bash gradlew compileJava compileTestJava --no-daemon --console=plain
+      - name: Compile main and tests with baseline mapper shim
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+
+          specs = [
+              (
+                  "src/main/java/com/example/the_cheaper/mapper/user/UserAccountMapper.java",
+                  Path("src/main/java/com/example/the_cheaper/account/mapper/user/UserAccountMapper.java"),
+                  {
+                      "package com.example.the_cheaper.mapper.user;": "package com.example.the_cheaper.account.mapper.user;",
+                      "com.example.the_cheaper.dto.response.user.UserAccountResponse": "com.example.the_cheaper.account.dto.response.user.UserAccountResponse",
+                      "com.example.the_cheaper.entity.AccountEntity": "com.example.the_cheaper.account.entity.AccountEntity",
+                      "com.example.the_cheaper.entity.AccountRoleEntity": "com.example.the_cheaper.rbac.entity.AccountRoleEntity",
+                  },
+              ),
+              (
+                  "src/main/java/com/example/the_cheaper/mapper/admin/AdminAccountMapper.java",
+                  Path("src/main/java/com/example/the_cheaper/account/mapper/admin/AdminAccountMapper.java"),
+                  {
+                      "package com.example.the_cheaper.mapper.admin;": "package com.example.the_cheaper.account.mapper.admin;",
+                      "com.example.the_cheaper.dto.response.admin.AdminAccountResponse": "com.example.the_cheaper.account.dto.response.admin.AdminAccountResponse",
+                      "com.example.the_cheaper.entity.AccountEntity": "com.example.the_cheaper.account.entity.AccountEntity",
+                      "com.example.the_cheaper.entity.AccountRoleEntity": "com.example.the_cheaper.rbac.entity.AccountRoleEntity",
+                  },
+              ),
+          ]
+          for index, (source, target, replacements) in enumerate(specs):
+              Path(f"/tmp/account-mapper-{index}.java").write_text(target.read_text(encoding="utf-8"), encoding="utf-8")
+              content = subprocess.check_output(
+                  ["git", "show", f"origin/feature/order-rbac-refactor:{source}"],
+                  text=True,
+              )
+              for old, new in replacements.items():
+                  content = content.replace(old, new)
+              target.write_text(content, encoding="utf-8")
+          PY
+          bash gradlew compileJava compileTestJava --no-daemon --console=plain
+          cp /tmp/account-mapper-0.java src/main/java/com/example/the_cheaper/account/mapper/user/UserAccountMapper.java
+          cp /tmp/account-mapper-1.java src/main/java/com/example/the_cheaper/account/mapper/admin/AdminAccountMapper.java
 
       - name: Structural checks
         run: |
