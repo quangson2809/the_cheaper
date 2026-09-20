@@ -66,14 +66,14 @@ class OrderServiceIntegrationTest {
         });
 
         // ── Account
-        account = accountRepository.save(
-                AccountEntity.builder()
+        account = AccountEntity.builder()
                         .name("Test Buyer")
                         .email("buyer_order_test@example.com")
                         .passwordHash(passwordEncoder.encode("pass123"))
-                        .role(userRole)
                         .status(1)
-                        .build());
+                        .build();
+        account.addRole(userRole);
+        account = accountRepository.save(account);
 
         // ── Product + Variant
         ProductEntity product = productRepository.save(
