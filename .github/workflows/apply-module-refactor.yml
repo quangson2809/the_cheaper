@@ -1,0 +1,45 @@
+name: Apply module structure refactor
+
+on:
+  push:
+    branches:
+      - refactor/package-by-module
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[module-refactor-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: refactor/package-by-module
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Apply deterministic package migration
+        run: python3 scripts/refactor_package_by_module.py
+
+      - name: Compile main and tests
+        run: ./gradlew compileJava compileTestJava --no-daemon --console=plain
+
+      - name: Structural checks
+        run: |
+          git diff --check
+          test -z "$(find src/main/java/com/example/the_cheaper/controller src/main/java/com/example/the_cheaper/dto src/main/java/com/example/the_cheaper/entity src/main/java/com/example/the_cheaper/mapper src/main/java/com/example/the_cheaper/repository src/main/java/com/example/the_cheaper/service -type f -name '*.java' 2>/dev/null || true)"
+
+      - name: Commit refactor
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "refactor(structure): organize backend by module [module-refactor-applied]"
+          git push origin HEAD:refactor/package-by-module
