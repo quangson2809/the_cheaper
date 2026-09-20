@@ -50,9 +50,9 @@ class AdminDashboardServiceIntegrationTest {
                 .name("Admin User")
                 .email("admin_integration@example.com")
                 .passwordHash(passwordEncoder.encode("admin123"))
-                .role(adminRole)
                 .status(1)
                 .build();
+        account.addRole(adminRole);
                 
         adminAccount = accountRepository.save(account);
     }
