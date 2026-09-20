@@ -67,7 +67,10 @@ public class UserOrderController {
             @CurrentUser AccountEntity currentUser,
             @PathVariable("order_id") Long orderId) {
         try {
-            String role = currentUser.getAccountRoles().stream()\n                    .map(accountRole -> accountRole.getRole().getName())\n                    .findFirst()\n                    .orElse(null);
+            String role = currentUser.getAccountRoles().stream()
+                    .map(accountRole -> accountRole.getRole().getName())
+                    .findFirst()
+                    .orElse(null);
             UserOrderResponse response = orderService.getOrderDetail(orderId, currentUser.getId(), role);
             return ResponseEntity.ok(ApiResponse.success(response, "Lấy chi tiết đơn hàng thành công"));
         } catch (ResourceNotFoundException e) {
