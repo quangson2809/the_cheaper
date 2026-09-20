@@ -12,6 +12,7 @@ import com.example.the_cheaper.rbac.repository.RoleRepository;
 import com.example.the_cheaper.account.service.AdminUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +54,6 @@ class AdminAccountRoleServiceTest {
                 .build();
         AccountEntity account = AccountEntity.builder()
                 .id(10L)
-                .role(role)
                 .build();
 
         when(accountRepository.findById(10L)).thenReturn(Optional.of(account));
@@ -69,7 +68,7 @@ class AdminAccountRoleServiceTest {
     }
 
     @Test
-    void assignAccountRole_ShouldReplaceCurrentRole() {
+    void assignAccountRole_ShouldAddAssignmentWhenMissing() {
         AccountEntity account = AccountEntity.builder().id(10L).build();
         RoleEntity role = RoleEntity.builder()
                 .id(2L)
@@ -79,16 +78,23 @@ class AdminAccountRoleServiceTest {
 
         when(accountRepository.findById(10L)).thenReturn(Optional.of(account));
         when(roleRepository.findById(2L)).thenReturn(Optional.of(role));
+        when(accountRoleRepository.existsByAccountIdAndRoleId(10L, 2L)).thenReturn(false);
 
         AdminAccountRoleResponse result = service.assignAccountRole(
                 10L,
                 new AssignAccountRoleRequest(2L));
 
-        assertThat(account.getRole()).isSameAs(role);
+        ArgumentCaptor<AccountRoleEntity> assignmentCaptor =
+                ArgumentCaptor.forClass(AccountRoleEntity.class);
+        verify(accountRoleRepository).save(assignmentCaptor.capture());
+
+        AccountRoleEntity savedAssignment = assignmentCaptor.getValue();
+        assertThat(savedAssignment.getAccount()).isSameAs(account);
+        assertThat(savedAssignment.getRole()).isSameAs(role);
         assertThat(result.getRoleId()).isEqualTo(2L);
         assertThat(result.getRoleName()).isEqualTo("PRODUCT_MANAGER");
-        verify(accountRoleRepository).deleteAllByAccountId(10L);
-        verify(accountRoleRepository).save(any(AccountRoleEntity.class));
-        verify(accountRepository).save(account);
+
+        verify(accountRoleRepository, never()).deleteAllByAccountId(anyLong());
+        verify(accountRepository, never()).save(any());
     }
 }
