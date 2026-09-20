@@ -24,8 +24,8 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Compile production source
-        run: bash gradlew compileJava --no-daemon --console=plain
+      - name: Compile production and test source
+        run: bash gradlew compileJava compileTestJava --no-daemon --console=plain
 
       - name: Structural audit
         shell: bash
