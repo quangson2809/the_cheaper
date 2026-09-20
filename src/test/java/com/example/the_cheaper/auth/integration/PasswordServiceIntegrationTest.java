@@ -67,9 +67,9 @@ class PasswordServiceIntegrationTest {
                 .name("Password Test User")
                 .email("pwdtest@example.com")
                 .passwordHash(passwordEncoder.encode("oldPassword123"))
-                .role(userRole)
                 .status(1)
                 .build();
+        account.addRole(userRole);
                 
         testAccount = accountRepository.save(account);
     }
