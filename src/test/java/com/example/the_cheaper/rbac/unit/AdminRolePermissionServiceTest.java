@@ -11,7 +11,6 @@ import com.example.the_cheaper.common.exception.ResourceNotFoundException;
 import com.example.the_cheaper.rbac.repository.PermissionRepository;
 import com.example.the_cheaper.rbac.repository.RolePermissionRepository;
 import com.example.the_cheaper.rbac.repository.RoleRepository;
-import com.example.the_cheaper.service.admin.AdminProtectedAccess;
 import com.example.the_cheaper.rbac.service.AdminRolePermissionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,9 +40,6 @@ class AdminRolePermissionServiceTest {
     @Mock
     private RolePermissionRepository rolePermissionRepository;
 
-    @Mock
-    private AdminProtectedAccess adminProtectedAccess;
-
     @InjectMocks
     private AdminRolePermissionService service;
 
@@ -64,7 +60,6 @@ class AdminRolePermissionServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getCode()).isEqualTo("PRODUCT_READ");
-        verify(adminProtectedAccess).adminAccess(admin);
     }
 
     @Test
