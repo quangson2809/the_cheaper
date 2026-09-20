@@ -65,10 +65,20 @@ jobs:
               for old, new in replacements.items():
                   content = content.replace(old, new)
               target.write_text(content, encoding="utf-8")
+
+          order_controller = Path("src/main/java/com/example/the_cheaper/order/controller/user/UserOrderController.java")
+          Path("/tmp/user-order-controller.java").write_text(order_controller.read_text(encoding="utf-8"), encoding="utf-8")
+          content = order_controller.read_text(encoding="utf-8")
+          content = content.replace(
+              "String role = currentUser.getRole() != null ? currentUser.getRole().getName() : null;",
+              "String role = currentUser.getAccountRoles().stream().map(ar -> ar.getRole().getName()).findFirst().orElse(null);",
+          )
+          order_controller.write_text(content, encoding="utf-8")
           PY
           bash gradlew compileJava compileTestJava --no-daemon --console=plain
           cp /tmp/account-mapper-0.java src/main/java/com/example/the_cheaper/account/mapper/user/UserAccountMapper.java
           cp /tmp/account-mapper-1.java src/main/java/com/example/the_cheaper/account/mapper/admin/AdminAccountMapper.java
+          cp /tmp/user-order-controller.java src/main/java/com/example/the_cheaper/order/controller/user/UserOrderController.java
 
       - name: Structural checks
         run: |
