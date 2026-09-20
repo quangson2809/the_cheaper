@@ -116,7 +116,7 @@ def main():
         s=originals[m.old]
         for old,new in fqmap.items():
             if old!=new: s=s.replace(old,new)
-        s=re.sub(r"^import com\.example\.the_cheaper\.(entity|repository)\.\*;\s*\n","",s,flags=re.M)
+        s=re.sub(r"^import com\.example\.the_cheaper\.[\w.]+\.\*;\s*\n","",s,flags=re.M)
         s,count=re.subn(r"^package\s+[\w.]+;",f"package {m.new_pkg};",s,count=1,flags=re.M)
         if count!=1: raise RuntimeError(f"missing package declaration: {m.old}")
         additions=[]
