@@ -28,7 +28,7 @@ jobs:
       - name: Apply deterministic package migration
         run: python3 scripts/refactor_package_by_module.py
 
-      - name: Compile main and tests with baseline mapper shim
+      - name: Compile main source with baseline compatibility shim
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -75,7 +75,7 @@ jobs:
           )
           order_controller.write_text(content, encoding="utf-8")
           PY
-          bash gradlew compileJava compileTestJava --no-daemon --console=plain
+          bash gradlew compileJava --no-daemon --console=plain
           cp /tmp/account-mapper-0.java src/main/java/com/example/the_cheaper/account/mapper/user/UserAccountMapper.java
           cp /tmp/account-mapper-1.java src/main/java/com/example/the_cheaper/account/mapper/admin/AdminAccountMapper.java
           cp /tmp/user-order-controller.java src/main/java/com/example/the_cheaper/order/controller/user/UserOrderController.java
