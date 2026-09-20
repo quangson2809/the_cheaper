@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -119,7 +120,7 @@ class AuthServiceTest {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
         AccountEntity account = AccountFixtures.createActiveUserAccount();
-        CustomUserDetails userDetails = new CustomUserDetails(account);
+        CustomUserDetails userDetails = new CustomUserDetails(account, List.of());
         
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn(userDetails);
